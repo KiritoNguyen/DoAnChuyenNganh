@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -50,6 +50,47 @@
             var scene = new BABYLON.Scene(engine);
             
             var hightLighter = new BABYLON.HighlightLayer("hl1", scene);
+
+            // SOUND
+            var backgroundSong;
+            var gunshot;
+            var explosion;
+
+            /////////////////////// SOUND ///////////////////////////
+            var soundManager = function (scene) {
+                gunshot = new BABYLON.Sound("gunshot", "https://raw.githubusercontent.com/tranminhquan/Metroid_Game_2/master/Metroid/Resources/sound/sfx/bullet.wav", scene);
+                explosion = new BABYLON.Sound('explosion', 'https://raw.githubusercontent.com/KiritoNguyen/My_Image/master/MyImage/Kiet/Explosion%2B6.wav', scene);
+                explosion.setVolume(0.2);
+                gunshot.setVolume(0.2);
+            } 
+
+            // Background Song
+            backgroundSong = new BABYLON.Sound('backgroundSong', 'https://raw.githubusercontent.com/KiritoNguyen/My_Image/master/MyImage/Kiet/05%20-%20Calderock%20Village%20(SEA).mp3', scene, null, { loop: true, autoplay: true });
+            backgroundSong.setVolume(0.5);
+
+            soundManager(scene);
+
+            var displayMusicVolume = function (value) {
+                return Math.round(value * 100) | 0;
+            }
+
+            var displayEffectSoundVolume = function (value) {
+                return Math.round(value * 100) | 0;
+            }
+
+            var volumeMusicValue = function (value) {
+                backgroundSong.setVolume(value);
+            }
+
+            var volumeEffectSoundValue = function (value) {
+                explosion.setVolume(value);
+                gunshot.setVolume(value);
+            }
+            
+
+            var musicGroup = new BABYLON.GUI.SliderGroup("Audio");
+            musicGroup.addSlider("Music volume", volumeMusicValue, "", 0, 1, 0.5, displayMusicVolume);
+            musicGroup.addSlider("Effect sound volume", volumeEffectSoundValue, "", 0, 1, 0.2, displayEffectSoundVolume) 
         
         
             // #region Camera & Input
@@ -271,7 +312,8 @@
                 
             }
         
-            function Bullet1Attack(bullet1){
+            function Bullet1Attack(bullet1) {
+                //gunshot.stop();
                 
                 var distanceX = bullet1.mesh.position.x - bullet1.target.mesh.position.x;
                 
@@ -298,6 +340,7 @@
                 if (bullet1.mesh.position.x == bullet1.target.mesh.position.x && bullet1.mesh.position.z == bullet1.target.mesh.position.z)
                     bullet1.mesh.dispose();
                 bullet1.target.hp -= 1;
+                gunshot.play();
                 
         
             }
@@ -386,7 +429,7 @@
                     tower1.Mesh.position.y = 8;
                     tower1.Mesh.position.z = z;
         
-                    tower1.fireTime = 0.1;
+                    tower1.fireTime = 1;
                     tower1.fireTimeCount = tower1.fireTime;
                     tower1.Range = 20;
                     tower1.Damage = 10;
@@ -738,6 +781,7 @@
                     for (var index = 0; index < listEnemy1.length; index++ ) {
         
                         if (listEnemy1[index].hp <= 0) {
+                            gunshot.play();
                             listEnemy1[index].mesh.dispose();
                             waveController.deathCount++;
                             listEnemy1.splice(index,1);
@@ -1245,7 +1289,8 @@
                             energy.scaling.y-=0.02;
                             energy.scaling.z-=0.02;
                         }
-                        else{
+                        else {
+                            explosion.play();
                             energy.dispose();
                             notice.text="YOU LOSE!!!";
                             setTimeout(function(){
@@ -1311,5 +1356,6 @@
             engine.resize();
         });
     </script>
+    <button class="babylonMuteIcon" id="babylonMuteIconBtn" title="Mute" style="top: 2px; left: 60px;"></button>
 </body>
 </html>
