@@ -34,13 +34,61 @@
             #renderCanvas {
                 width: 100%;
                 height: 100%;
+                margin-right: 11%;
                 touch-action: none;
+            }.menu {
+                width: 11%;
+                height: 100%;
+                float: right;
+                padding-right: 0px;
+                text-align: center;
+                background-color: rgb(148, 243, 151);
+            }
+
+            .main {
+                width: 89%;
+                height: 100%;
+                float: left;
+            }
+
+            .btn {
+                width: 90%;
+                height: 40px;
+                background-color: #4CAF50;
+                color: white;
+                box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(151, 148, 148, 0.19);
+            }
+
+            .list {
+                margin-left: 5%;
+                border-style: dotted;
+                height: 200px;
+                text-align: center;
             }
         </style>
     </head>
-<body>
-    <canvas id="renderCanvas"></canvas>
-    <script>
+    <body>
+            <div class="menu">
+                <ul style="list-style-type:none; margin: 0; padding: 0; font-size: 22px; font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">
+                    <li>Start Wave</li>
+                        <button id="cameraChange" class="btn">Start</button>
+                    <br/><br/>
+                    <li>Restart Wave</li>
+                        <button id="cameraChange" class="btn">Retart</button>
+                    <br/><br/>
+                    <li>Create Tower</li>
+                        <div class="list">
+                            <button id="twShortRanger" class="btn" style="margin-top: 18%; margin-left: 5%">Short Ranger</button> <br>
+                            <button id="twSlow" class="btn" style="margin-top: 10%; margin-left: 5%">Slow</button> <br>
+                            <button id="twLongRanger" class="btn" style="margin-top: 10%; margin-left: 5%">Long Ranger</button> <br>
+                        </div>                                    
+                </ul>
+            </div>
+        <div class="main">
+                <canvas id="renderCanvas"></canvas>
+        </div>
+
+        <script>
         var canvas = document.getElementById("renderCanvas");
 
         var createScene = function () {
@@ -122,8 +170,8 @@
         	lavaMaterial.noiseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/BabylonJS/Babylon.js/master/Playground/textures/lava/cloud.png", scene); // Set the bump texture
         	lavaMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/BabylonJS/Babylon.js/master/Playground/textures/lava/lavatile.jpg", scene); // Set the diffuse texture
             //lavaMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Image/Texttue3.jpg", scene);
-            lavaMaterial.speed = 0.6;
-        	lavaMaterial.fogColor = new BABYLON.Color3(1, 1, 1);
+            lavaMaterial.speed = 0.2;
+        	lavaMaterial.fogColor = new BABYLON.Color3(0, 0, 0);
             lavaMaterial.unlit = true;
             ground.material=lavaMaterial;
         
@@ -293,9 +341,9 @@
             function CreateBullet1(target, list, tower, speed)
             {
                 var b = new Bullet1();
-                b.mesh = new BABYLON.MeshBuilder.CreateSphere("bullet", {diameter: 1}, scene);
+                b.mesh = new BABYLON.MeshBuilder.CreateSphere("bullet", {diameter: 5}, scene);
                 b.mesh.material=new BABYLON.StandardMaterial("bMat",scene);
-                b.mesh.material.diffuseColor=new BABYLON.Color3.Red();
+                b.mesh.material.diffuseColor=new BABYLON.Color3.Green();
                 b.mesh.position.x = tower.Mesh.position.x;
                 b.mesh.position.z = tower.Mesh.position.z;
                 b.mesh.position.y = tower.Mesh.position.y;
