@@ -166,8 +166,16 @@
         	skybox.material = skyboxMaterial;	
             skybox.position.y=-100;
         
-            var ground =new BABYLON.MeshBuilder.CreateGround("ground",{width:200,height:200},scene);
-            ground.position.y=-10;
+            // var ground =new BABYLON.MeshBuilder.CreateGround("ground",{width:200,height:200},scene);
+            // ground.position.y=-10;
+
+            var space;
+            BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/space/","scene.gltf",scene,function(newMeshes){
+                space = newMeshes[0];
+                space.scaling = new BABYLON.Vector3(2,2,2);
+                space.position = new BABYLON.Vector3(220,-200,-220);
+            })
+
             // ground.material=new BABYLON.StandardMaterial("groundmat",scene);
             // // ground.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/images.jpg",scene);
             // ground.material.diffuseColor=new BABYLON.Color3(153/255,209/255,211/255);
@@ -412,14 +420,19 @@
                 })
             }
         
-            var energy= BABYLON.MeshBuilder.CreateSphere("energy",{diameter:15},scene);
-            energy.position.x=-20;
-            energy.position.z=18;
-            energy.material=new BABYLON.StandardMaterial("energymat",scene);
-            setInterval(function(){
-                energy.material.emissiveColor = new BABYLON.Color3(Math.random()+0.5,Math.random()+0.5,Math.random()+0.5);
-            },500);
-            energy.material.diffuseColor=new BABYLON.Color3(1,0.5,0.5);
+            var energy = new BABYLON.Mesh.CreateBox("energy",0,scene);
+            BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/energy/","scene.gltf",scene,function(newMeshes){
+                energy = newMeshes[0];
+                energy.position.x=-23;
+                energy.position.z=25;
+                energy.scaling = new BABYLON.Vector3(10,10,10);
+                // energy.material=new BABYLON.StandardMaterial("energymat",scene);
+                // setInterval(function(){
+                //     energy.material.emissiveColor = new BABYLON.Color3(Math.random()+0.5,Math.random()+0.5,Math.random()+0.5);
+                // },500);
+                // energy.material.diffuseColor=new BABYLON.Color3(1,0.5,0.5);
+            })
+            
         
             // var wireframe = BABYLON.MeshBuilder.CreateSphere("wf",{diameter:15,},scene);
             // wireframe.position.x=-20;
@@ -1335,7 +1348,7 @@
             CreateNode(-7,12);
             CreateNode(-7,-28);
             CreateNode(-20,-28);
-            CreateNode(-20,20);
+            CreateNode(energy.position.x,energy.position.z);
         
             //setInterval(function(){CreateEnemy1(20,15);},300);
         
