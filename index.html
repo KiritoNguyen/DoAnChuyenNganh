@@ -428,6 +428,16 @@
             // wireframe.material.wireframe=true;
         
             //////////////////Platform////////////////
+            function PlatformModel(){
+                var _model;
+            }
+            var model = new PlatformModel();
+            function LoadPlatform(){
+                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/platform/", "scene.gltf", scene, function (newMeshes) {
+                    model._model = newMeshes[0];
+                })
+            }
+
             function Platform()
             {
                 var Mesh;
@@ -436,12 +446,12 @@
         
             function CreatePlatform(x,z){
                     var plat = new Platform();
-                    BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Model/", "Platform.babylon", scene, function (newMeshes) {
-                   // BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/sci-fi-platforms/source/", "Platform.fbx", scene, function (newMeshes) {
+                    BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/platform/", "scene.gltf", scene, function (newMeshes) {
+                   
                     plat.Mesh = newMeshes[0];
-                    plat.Mesh.material=new BABYLON.StandardMaterial("platformMat",scene);
-                    plat.Mesh.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Image/images.jpg",scene);
-                    plat.Mesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
+                    // plat.Mesh.material=new BABYLON.StandardMaterial("platformMat",scene);
+                    // plat.Mesh.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Image/images.jpg",scene);
+                    plat.Mesh.scaling = new BABYLON.Vector3(0.009, 0.009, 0.009);
                     hightLighter.addMesh(plat.Mesh, BABYLON.Color3.Red());
                     plat.Mesh.position.x = x;
                     plat.Mesh.position.y = -5;
@@ -1350,7 +1360,7 @@
             CreatePlatform(0,-15);
             CreatePlatform(0,-25);
         
-            var updateEnergy=function(){
+            var updateEnergy = function(){
                 listEnemy1.forEach(enemy=>{
                     if(energy.intersectsMesh(enemy.mesh,true)){
                         if(energy.scaling.z>0.1){
@@ -1371,7 +1381,7 @@
                 })
             }
         
-            var updateVictory=function(){
+            var updateVictory = function(){
                 if(isStartWave)
                     if(listEnemy1.length==0&&energy.scaling.z>=0.1&&isCompleteLoadEnemy==1){
                         notice.text="CONGRATULATION";
@@ -1380,6 +1390,13 @@
                         },3000);
                         isStartWave=false;
                     }
+            }
+
+            var updatePlatform = function(){
+                platList.forEach(plat=>{
+                    plat.Mesh.rotation.y -= 0.002;
+                    plat.Mesh.rotation = new BABYLON.Vector3(0, plat.Mesh.rotation.y,0);
+                })
             }
         
             /////////////////////////////Loop//////////////////////////////
@@ -1403,6 +1420,7 @@
                 UpdateWave();
                 updateEnergy();
                 updateVictory();
+                updatePlatform();
                 
                 CameraMovemrnt()
             })
