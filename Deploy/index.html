@@ -1,0 +1,1449 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                margin-right: 11%;
+                touch-action: none;
+            }.menu {
+                width: 11%;
+                height: 100%;
+                float: right;
+                padding-right: 0px;
+                text-align: center;
+                background-color: rgb(148, 243, 151);
+            }
+
+            .main {
+                width: 89%;
+                height: 100%;
+                float: left;
+            }
+
+            .btn {
+                width: 90%;
+                height: 40px;
+                background-color: #4CAF50;
+                color: white;
+                box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(151, 148, 148, 0.19);
+            }
+
+            .list {
+                margin-left: 5%;
+                border-style: dotted;
+                height: 200px;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+            <div class="menu">
+                <ul style="list-style-type:none; margin: 0; padding: 0; font-size: 22px; font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">
+                    <li>Start Wave</li>
+                    <div>
+                        <button id="btnStartWave" class="btn">Start</button>
+                    </div>               
+                    <br/>
+                    <li>Restart Wave</li>
+                    <div>
+                        <button id="btnRestartWave" class="btn">Retart</button>
+                    </div>         
+                    <br/>        
+                    <li>Create Tower</li>
+                        <div class="list">
+                            <button id="twShortRanger" class="btn" style="margin-top: 18%">Short Ranger</button> <br>
+                            <button id="twSlow" class="btn" style="margin-top: 10%">Slow</button> <br>
+                            <button id="twLongRanger" class="btn" style="margin-top: 10%">Long Ranger</button> <br>
+                        </div>                                    
+                </ul>
+            </div>
+        <div class="main">
+                <canvas id="renderCanvas"></canvas>
+        </div>
+
+        <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var createScene = function () {
+        
+            //var engine = new BABYLON.Engine(canvas, true, { stencil: true });
+            // This creates a basic Babylon Scene object (non-mesh)
+            var scene = new BABYLON.Scene(engine);
+            
+            var hightLighter = new BABYLON.HighlightLayer("hl1", scene);
+
+            // SOUND
+            var backgroundSong;
+            var gunshot;
+            var explosion;
+            var isCompleteLoadEnemy = 0;
+
+            /////////////////////// SOUND ///////////////////////////
+            var soundManager = function (scene) {
+                gunshot = new BABYLON.Sound("gunshot", "https://raw.githubusercontent.com/tranminhquan/Metroid_Game_2/master/Metroid/Resources/sound/sfx/bullet.wav", scene);
+                explosion = new BABYLON.Sound('explosion', 'https://raw.githubusercontent.com/KiritoNguyen/My_Image/master/MyImage/Kiet/Explosion%2B6.wav', scene);
+                explosion.setVolume(0.2);
+                gunshot.setVolume(0.2);
+            } 
+
+            // Background Song
+            backgroundSong = new BABYLON.Sound('backgroundSong', 'https://raw.githubusercontent.com/KiritoNguyen/My_Image/master/MyImage/Kiet/05%20-%20Calderock%20Village%20(SEA).mp3', scene, null, { loop: true, autoplay: true });
+            backgroundSong.setVolume(0.0);
+
+            soundManager(scene);
+
+            var displayMusicVolume = function (value) {
+                return Math.round(value * 100) | 0;
+            }
+
+            var displayEffectSoundVolume = function (value) {
+                return Math.round(value * 100) | 0;
+            }
+
+            var volumeMusicValue = function (value) {
+                backgroundSong.setVolume(value);
+            }
+
+            var volumeEffectSoundValue = function (value) {
+                explosion.setVolume(value);
+                gunshot.setVolume(value);
+            }
+            
+
+            var musicGroup = new BABYLON.GUI.SliderGroup("Audio");
+            musicGroup.addSlider("Music volume", volumeMusicValue, "", 0, 1, 0.5, displayMusicVolume);
+            musicGroup.addSlider("Effect sound volume", volumeEffectSoundValue, "", 0, 1, 0.2, displayEffectSoundVolume) 
+        
+        
+            // #region Camera & Input
+            // This creates and positions a free camera (non-mesh)
+            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 50, 0), scene);
+        
+            // This targets the camera to scene origin
+            camera.setTarget(BABYLON.Vector3.Zero());
+        
+            // This attaches the camera to the canvas
+            camera.attachControl(canvas, true);
+        
+            var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, scene);
+        	var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+        	skyboxMaterial.backFaceCulling = false;
+        	skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("https://raw.githubusercontent.com/KiritoNguyen/My_Image/master/MyImage/Phi/skybox", scene);
+        	skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+        	skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+        	skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+        	skybox.material = skyboxMaterial;	
+            skybox.position.y=-100;
+        
+            var ground =new BABYLON.MeshBuilder.CreateGround("ground",{width:200,height:200},scene);
+            ground.position.y=-10;
+            // ground.material=new BABYLON.StandardMaterial("groundmat",scene);
+            // // ground.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/images.jpg",scene);
+            // ground.material.diffuseColor=new BABYLON.Color3(153/255,209/255,211/255);
+            // var lavaMaterial = new BABYLON.LavaMaterial("lava", scene);	
+        	// lavaMaterial.noiseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/Image/sea.jpg", scene); // Set the bump texture
+        	// lavaMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/Image/sea.jpg", scene); // Set the diffuse texture
+            // //lavaMaterial.diffuseTexture = new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Image/Texttue3.jpg", scene);
+            // lavaMaterial.speed = 0.2;
+        	// lavaMaterial.fogColor = new BABYLON.Color3(0, 0, 0);
+            // lavaMaterial.unlit = true;
+            // ground.material=lavaMaterial;
+        
+        //camera.inputs.clear();
+        
+            var cameraSpeed = 2;
+            var zoomPos = scene.activeCamera.getDirection(BABYLON.Axis.Z);
+            zoomPos.y *=32;
+            scene.activeCamera.position.subtractInPlace(zoomPos);
+        
+            // scene.debugLayer.show();
+        
+            //////////////////////////Input Initialize//////////////////////////////
+        
+            var map ={}; //object for multiple key presses
+            scene.actionManager = new BABYLON.ActionManager(scene);
+         
+            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, function (evt) {								
+        		map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";	
+        	}));
+        	
+            scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {								
+        		map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+        	}));
+        
+            //////////////////////////Camera Controller//////////////////////////////
+        
+            //Keyboard Control
+            function CameraMovemrnt()
+            {
+                if (map["w"]||map["W"])
+                    camera.position.z -= cameraSpeed;
+                if (map["s"]||map["S"])
+                    camera.position.z += cameraSpeed;
+                if (map["d"]||map["d"])
+                    camera.position.x -= cameraSpeed;
+                if (map["a"]||map["a"])
+                    camera.position.x += cameraSpeed;
+            }
+        
+            //Mouse Control
+            scene.onPrePointerObservable.add( function(pointerInfo, eventState) {
+                // console.log(pointerInfo);
+                var event = pointerInfo.event;
+                var delta = 0;
+                if (event.wheelDelta) {
+                    delta = event.wheelDelta;
+                }
+                else if (event.detail) {
+                    delta = -event.detail;
+                }
+                if (delta) {
+                    
+                    var dir = scene.activeCamera.getDirection(BABYLON.Axis.Z);
+                    
+                    dir.y *=5;
+                    //scene.activeCamera.position.z += delta/10;
+                    if (delta>0)
+                        scene.activeCamera.position.addInPlace(dir);
+                    else
+                        scene.activeCamera.position.subtractInPlace(dir);
+                    // scene.activeCamera.???;
+        
+                    // if (event.preventDefault) {
+                    //     if (!noPreventDefault) {
+                    //         event.preventDefault();
+                    //     }
+                    // }
+                }
+            }, BABYLON.PointerEventTypes.POINTERWHEEL, false);
+            //#endregion
+            //////////////////////////////////////////////////////////////////////
+            
+            
+            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1,0), scene);
+        
+            // Default intensity is 1. Let's dim the light a small amount
+            light.intensity = 0.6;
+        
+            var sun =new BABYLON.MeshBuilder.CreateSphere("sun",{diameter:20},scene);
+            sun.position=new BABYLON.Vector3(0,100,50000);
+            light.parent=sun;
+        
+            var count = 0;
+            //////////////////////////Manager & Definition//////////////////////////////
+            // #region Variable define
+            var platList = [];
+            var tower1List = [];
+            var tower2List = [];
+            var tower3List = [];
+            var tower1TemplateList = [];
+            var tower2TemplateList = [];
+            var tower3TemplateList = [];
+            var listEnemy1 = [];
+            var listNodes = [];
+            var spawnList = [];
+        
+            var lastTime = 0;
+            var deltatime;
+            var currentTime;
+            var SpawnPointX = 20;
+            var SpawnPointY = 15;
+            var waveController;
+            var isStartWave=false;
+            
+        
+            var debugRange = true;
+            var rangeMat = new BABYLON.StandardMaterial("greenMat", scene);
+        	rangeMat.alpha = 0.2;
+        
+            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI('UI', undefined, undefined, BABYLON.Texture.NEAREST_NEAREST);
+          
+            advancedTexture.rootContainer.scaleX = window.devicePixelRatio;
+            advancedTexture.rootContainer.scaleY = window.devicePixelRatio;
+        
+            //Debug
+            var text1 = new BABYLON.GUI.TextBlock();
+            text1.text = "10";
+            text1.color = "white";
+            text1.fontSize = 15;
+            text1.verticalAlignment=BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            text1.horizontalAlignment=BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            text1.left = -220;
+            text1.top = -270;
+         
+            var text2 = new BABYLON.GUI.TextBlock();
+            text2.text = "TOWER DEFENSE";
+            text2.color = "yellow";
+            text2.fontSize = 35;
+            text2.fontWeight.bold="24000";
+            text2.left = -20;
+            text2.top = -270;
+        
+            var notice = new BABYLON.GUI.TextBlock();
+            notice.color = "white";
+            notice.fontSize = 60;
+            notice.fontWeight.bold="24000";
+            notice.left = -0;
+            notice.top = -50;
+        
+        
+            // advancedTexture.addControl(text1);
+            advancedTexture.addControl(text2);
+            advancedTexture.addControl(notice);
+        
+            setTimeout(function(){
+                notice.text="SETUP YOUR TOWER"
+                setTimeout(function(){
+                    notice.text="";
+                },5000);
+            },3000)
+        
+            // #endregion
+        
+            /////////////////////////////Class Define//////////////////////////////
+            // #region GameObject
+            /////////////////Bullet///////////////////
+            function Bullet1()
+            {
+                var speed;
+                var mesh;
+                var damage;
+                var target;
+            }
+        
+            function CreateBullet1(target, list, tower, speed)
+            {
+                var b = new Bullet1();
+                b.mesh = new BABYLON.MeshBuilder.CreateSphere("bullet", {diameter: 2}, scene);
+                b.mesh.material=new BABYLON.StandardMaterial("bMat",scene);
+                b.mesh.material.diffuseColor=new BABYLON.Color3.Green();
+                b.mesh.position.x = tower.Mesh.position.x;
+                b.mesh.position.z = tower.Mesh.position.z;
+                b.mesh.position.y = tower.Mesh.position.y;
+                //b.mesh.wireframe =true;
+                
+                b.speed = speed;
+                b.damage = tower.damage;
+                b.target = target;
+        
+                 
+                
+                list.push(b);
+                return b;
+                
+            }
+        
+            function Bullet1Attack(bullet1) {
+                //gunshot.stop();
+                
+                var distanceX = bullet1.mesh.position.x - bullet1.target.mesh.position.x;
+                
+                var distanceZ = bullet1.mesh.position.z - bullet1.target.mesh.position.z;
+        
+                var distance = bullet1.speed*deltatime;
+        
+                if (distanceX*distanceX + distanceZ*distanceZ < bullet1.speed*bullet1.speed*deltatime*deltatime)
+                    distance = Math.sqrt(distanceX*distanceX + distanceZ*distanceZ);
+                
+                var ratio = distanceX / distanceZ;
+                var ratioX = distanceX / (distanceZ + distanceX);
+                var ratioZ = distanceZ / (distanceZ + distanceX);
+        
+                var distanceRatio = Math.sqrt(distanceX*distanceX + distanceZ*distanceZ) / distance;
+        
+                var x = bullet1.mesh.position.x - distanceX/distanceRatio;
+                var z = bullet1.mesh.position.z - distanceZ/distanceRatio;
+                
+                bullet1.mesh.position.x = x;
+                bullet1.mesh.position.z = z;
+               
+        
+                if (bullet1.mesh.position.x == bullet1.target.mesh.position.x && bullet1.mesh.position.z == bullet1.target.mesh.position.z)
+                    bullet1.mesh.dispose();
+                bullet1.target.hp -= 1;
+                gunshot.play();
+                
+        
+            }
+        
+            function UpdateBullet()
+            {
+                tower1List.forEach(function(tower){
+                    tower.listBullet1.forEach(function(bullet){
+                        Bullet1Attack(bullet);
+                    })
+                })
+                tower3List.forEach(function(tower){
+                    tower.listBullet.forEach(function(bullet){
+                        Bullet1Attack(bullet);
+                    })
+                })
+            }
+        
+            var energy= BABYLON.MeshBuilder.CreateSphere("energy",{diameter:15},scene);
+            energy.position.x=-20;
+            energy.position.z=18;
+            energy.material=new BABYLON.StandardMaterial("energymat",scene);
+            setInterval(function(){
+                energy.material.emissiveColor = new BABYLON.Color3(Math.random()+0.5,Math.random()+0.5,Math.random()+0.5);
+            },500);
+            energy.material.diffuseColor=new BABYLON.Color3(1,0.5,0.5);
+        
+            // var wireframe = BABYLON.MeshBuilder.CreateSphere("wf",{diameter:15,},scene);
+            // wireframe.position.x=-20;
+            // wireframe.position.z=18;
+            // wireframe.material=new BABYLON.StandardMaterial("wfMat",scene);
+            // wireframe.material.wireframe=true;
+        
+            //////////////////Platform////////////////
+            function PlatformModel(){
+                var _model;
+            }
+            var model = new PlatformModel();
+            function LoadPlatform(){
+                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/platform/", "scene.gltf", scene, function (newMeshes) {
+                    model._model = newMeshes[0];
+                })
+            }
+
+            function Platform()
+            {
+                var Mesh;
+                var isEmpty;    
+            }
+        
+            function CreatePlatform(x,z){
+                    var plat = new Platform();
+                    BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/platform/", "scene.gltf", scene, function (newMeshes) {
+                   
+                    plat.Mesh = newMeshes[0];
+                    // plat.Mesh.material=new BABYLON.StandardMaterial("platformMat",scene);
+                    // plat.Mesh.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Image/images.jpg",scene);
+                    plat.Mesh.scaling = new BABYLON.Vector3(0.009, 0.009, 0.009);
+                    hightLighter.addMesh(plat.Mesh, BABYLON.Color3.Red());
+                    plat.Mesh.position.x = x;
+                    plat.Mesh.position.y = -5;
+                    plat.Mesh.position.z = z;
+                    plat.isEmpty = true;
+        
+                    platList.push(plat);
+        
+                    
+                    })
+                   return plat;
+                }
+            
+            
+            //////////////////////Tower1///////////////////
+            // #region Tower
+            //Lam Tower 1 xoay xoay cho dep
+            function Tower1()
+            {
+                var Range;
+                var Damage;
+                var Mesh;
+                var rangeMesh;
+                var listBullet1;
+                var fireTime;
+                var fireTimeCount;
+            }
+        
+            function CreateTower1(x,z)
+            {
+                var tower1 = new Tower1();
+                 BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Model/", "Tower3.babylon", scene, function (newMeshes) {
+                    tower1.Mesh = newMeshes[0];
+                    tower1.Mesh.material=new BABYLON.StandardMaterial("tower1Mat",scene);
+                    tower1.Mesh.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Image/Texttue3.jpg",scene);
+                    tower1.Mesh.scaling=new BABYLON.Vector3(7 , 7, 7);
+                    hightLighter.addMesh(tower1.Mesh, BABYLON.Color3.Blue());
+                    tower1.Mesh.position.x = x;
+                    tower1.Mesh.position.y = 8;
+                    tower1.Mesh.position.z = z;
+        
+                    tower1.fireTime = 1;
+                    tower1.fireTimeCount = tower1.fireTime;
+                    tower1.Range = 20;
+                    tower1.Damage = 10;
+                    
+                    tower1.listBullet1 = [];
+        
+                    tower1.rangeMesh = new BABYLON.MeshBuilder.CreateSphere("range", {diameterX:tower1.Range, diameterZ: tower1.Range, diameterY: 0.1}, scene);
+                    tower1.rangeMesh.position.x = x;
+                    tower1.rangeMesh.position.z = z;
+                    tower1.rangeMesh.position.y = 8;
+                    tower1.rangeMesh.material = rangeMat;
+                    
+        
+                    
+                    //if (debugRange == false)
+                    //    tower1.rangeMesh.isVisible = false;
+        
+        
+                    tower1List.push(tower1);
+        
+                    return tower1;
+                 })
+            }
+        
+            /////////////////////Tower2////////////////////
+            function Tower2()
+            {
+                var Range;
+                var Damage;
+                var Mesh;
+                var rangeMesh;
+            }
+        
+            function CreateTower2(x,z)
+            {
+                // var faceColors = new Array(6);
+                // faceColors[1] = new BABYLON.Color4(0,0,0,1);
+                // faceColors[2] = new BABYLON.Color4(0,0,0,1);
+                // faceColors[3] = new BABYLON.Color4(0,0,0,1);
+                // faceColors[4] = new BABYLON.Color4(0,0,0,1);
+                // faceColors[5] = new BABYLON.Color4(0,0,0,1);
+                // faceColors[6] = new BABYLON.Color4(0,0,0,1);
+        
+        
+                var tower2 = new Tower2();
+                 BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Model/", "Tower2.babylon", scene, function (newMeshes) {
+                    tower2.Mesh = newMeshes[0];
+                    tower2.Mesh.material=new BABYLON.StandardMaterial("tower2Mat",scene);
+                    tower2.Mesh.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Image/mosaic_stones_structure_pattern_ground_texture.jpg",scene);
+                    tower2.Mesh.scaling=new BABYLON.Vector3(7 , 7, 7);
+                    hightLighter.addMesh(tower2.Mesh, BABYLON.Color3.Green());
+                    tower2.Mesh.position.x = x;
+                    tower2.Mesh.position.y = 8;
+                    tower2.Mesh.position.z = z;
+        
+                    tower2.fireTime = 0.0167;
+                    tower2.Range = 20;
+                    tower2.Damage = 10;
+        
+        
+                    tower2.rangeMesh = new BABYLON.MeshBuilder.CreateSphere("range", {diameterX:tower2.Range, diameterZ: tower2.Range, diameterY: 0.1}, scene);
+                    tower2.rangeMesh.position.x = x;
+                    tower2.rangeMesh.position.z = z;
+                    tower2.rangeMesh.position.y = 8;
+                    tower2.rangeMesh.material = rangeMat;
+        
+                    tower2List.push(tower2);
+        
+                    return tower2;
+                 })
+            }
+        
+            /////////////////////Tower3////////////////////
+            function Tower3()
+            {
+                var Range;
+                var Damage;
+                var Mesh;
+                var rangeMesh;
+                var listBullet;
+                var fireTime;
+                var fireTimeCount;
+            }
+        
+            function CreateTower3(x,z)
+            {
+                var tower = new Tower3();
+                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Model/", "Tower.babylon", scene, function (newMeshes) {
+                    tower.Mesh = newMeshes[0];
+                    hightLighter.addMesh(tower.Mesh, BABYLON.Color3.Yellow());
+                    tower.Mesh.position.x = x;
+                    tower.Mesh.position.y = 0;
+                    tower.Mesh.position.z = z;
+        
+                    tower.fireTime = 2;
+                    tower.fireTimeCount = tower.fireTime;
+                    tower.Range = 47;
+                    tower.Damage = 10;
+                    
+                    tower.listBullet = [];
+        
+                    tower.rangeMesh = new BABYLON.MeshBuilder.CreateSphere("range", {diameterX:tower.Range, diameterZ: tower.Range, diameterY: 0.1}, scene);
+                    tower.rangeMesh.position.x = x;
+                    tower.rangeMesh.position.z = z;
+                    tower.rangeMesh.position.y = 8;
+                    tower.rangeMesh.material = rangeMat;
+        
+                    //if (debugRange == false)
+                    //    tower1.rangeMesh.isVisible = false;
+                    tower3List.push(tower);
+                })
+                
+                return tower;
+            }
+            
+            /////////////////////Tower Update////////////////
+        
+            function UpdateTower1(){
+                for (var it = 0; it < tower1List.length; it++){
+                    tower1List[it].fireTimeCount -= 0.0167;
+        
+                    for (var ie = 0; ie < listEnemy1.length; ie++)  {
+                        var distanceX = Math.abs(listEnemy1[ie].mesh.position.x - tower1List[it].Mesh.position.x);
+                        
+                        var distanceZ = Math.abs(listEnemy1[ie].mesh.position.z - tower1List[it].Mesh.position.z);
+                        var distance = Math.sqrt(distanceX * distanceX + distanceZ * distanceZ);
+                        
+                        if (distance < tower1List[it].Range/2 && tower1List[it].fireTimeCount < 0){
+                                CreateBullet1(listEnemy1[ie], tower1List[it].listBullet1,tower1List[it],40);
+                                tower1List[it].fireTimeCount = tower1List[it].fireTime;
+                                
+                        }
+                    }
+                }
+               
+            }
+        
+            function UpdateTower2(){
+                for (var ie = 0; ie < listEnemy1.length; ie++){
+                    var count=0;
+                    for (var it = 0; it < tower2List.length; it++) {
+                        var distanceX = Math.abs(listEnemy1[ie].mesh.position.x - tower2List[it].Mesh.position.x);
+                        var distanceZ = Math.abs(listEnemy1[ie].mesh.position.z - tower2List[it].Mesh.position.z);
+                        var distance = Math.sqrt(distanceX * distanceX + distanceZ * distanceZ);
+                        if(distance < tower2List[it].Range/2)
+                            listEnemy1[ie].speed= listEnemy1[ie].maxSpeed * 0.5;
+                        else
+                            count++;
+                    }
+                    if(count==tower2List.length)
+                        listEnemy1[ie].speed=listEnemy1[ie].maxSpeed;
+                }
+               
+            }
+        
+            function UpdateTower3(){
+                for (var it = 0; it < tower3List.length; it++){
+                    tower3List[it].fireTimeCount -= 0.0167;
+                    for (var ie = 0; ie < listEnemy1.length; ie++)  {
+                        var distanceX = Math.abs(listEnemy1[ie].mesh.position.x - tower3List[it].Mesh.position.x);
+                        
+                        var distanceZ = Math.abs(listEnemy1[ie].mesh.position.z - tower3List[it].Mesh.position.z);
+                        var distance = Math.sqrt(distanceX * distanceX + distanceZ * distanceZ);
+                        
+                        if (distance < tower3List[it].Range/2 && tower3List[it].fireTimeCount < 0){
+                                CreateBullet1(listEnemy1[ie], tower3List[it].listBullet,tower3List[it],150);
+                                tower3List[it].fireTimeCount = tower3List[it].fireTime;
+                        }
+                        
+                    }
+                }
+               
+            }
+        
+            /////////////////////Tower Template////////////////
+            //Chinh Tranparent lai cho mo mo
+            function CreateTower1Template(x,z)
+            {
+                var faceColors = new Array(6);
+                faceColors[1] = new BABYLON.Color4(0,1,0,1);
+                faceColors[2] = new BABYLON.Color4(0,1,0,1);
+                faceColors[3] = new BABYLON.Color4(0,1,0,1);
+                faceColors[4] = new BABYLON.Color4(0,1,0,1);
+                faceColors[5] = new BABYLON.Color4(0,1,0,1);
+                faceColors[6] = new BABYLON.Color4(0,1,0,1);
+        
+                var tower1 = new BABYLON.MeshBuilder.CreateBox("tower1", {height : 3, width: 3, depth: 3,faceColors: faceColors}, scene);
+        
+                tower1.position.x = x;
+                tower1.position.y = 8;
+                tower1.position.z = z;
+        
+                tower1TemplateList.push(tower1);
+        
+                tower1.actionManager = new BABYLON.ActionManager(scene);
+                tower1.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function () {
+        		CreateTower1(tower1.position.x, tower1.position.z);
+        
+                for (var index = 0; index < platList.length; index++)
+                {
+                    if (platList[index].Mesh.position.x == tower1.position.x && platList[index].Mesh.position.z == tower1.position.z)
+                    {
+                        platList[index].isEmpty = false;
+                        break;
+                    }
+                }
+        
+                for (var index = 0; index < tower1TemplateList.length; index++)
+                {
+                    tower1TemplateList[index].dispose();
+                }
+                tower1TemplateList = [];
+        	}));
+        
+        
+                return tower1;
+            }
+        
+            function CreateTower2Template(x,z){
+                    var faceColors = new Array(6);
+                    faceColors[1] = new BABYLON.Color4(1,1,0,0);
+                    faceColors[2] = new BABYLON.Color4(1,1,0,0);
+                    faceColors[3] = new BABYLON.Color4(1,1,0,0);
+                    faceColors[4] = new BABYLON.Color4(1,1,0,0);
+                    faceColors[5] = new BABYLON.Color4(1,1,0,0);
+                    faceColors[6] = new BABYLON.Color4(1,1,0,0);
+        
+                    var tower2 = new BABYLON.MeshBuilder.CreateBox("tower2", {height : 3, width: 3, depth: 3,faceColors: faceColors}, scene);
+        
+                    tower2.position.x = x;
+                    tower2.position.y = 8;
+                    tower2.position.z = z;
+        
+                    tower2TemplateList.push(tower2);
+        
+                    tower2.actionManager = new BABYLON.ActionManager(scene);
+                    tower2.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function () {
+                    CreateTower2(tower2.position.x, tower2.position.z);
+        
+                    for (var index = 0; index < platList.length; index++)
+                    {
+                        if (platList[index].Mesh.position.x == tower2.position.x && platList[index].Mesh.position.z == tower2.position.z)
+                        {
+                            platList[index].isEmpty = false;
+                            break;
+                        }
+                    }
+        
+                    for (var index = 0; index < tower2TemplateList.length; index++)
+                    {
+                        tower2TemplateList[index].dispose();
+                    }
+                    tower2TemplateList = [];
+                }));
+        
+        
+                    return tower2;
+            }
+        
+            function CreateTower3Template(x,z){
+                    var faceColors = new Array(6);
+                    faceColors[1] = new BABYLON.Color4(0,0,1,1);
+                    faceColors[2] = new BABYLON.Color4(0,0,1,1);
+                    faceColors[3] = new BABYLON.Color4(0,0,1,1);
+                    faceColors[4] = new BABYLON.Color4(0,0,1,1);
+                    faceColors[5] = new BABYLON.Color4(0,0,1,1);
+                    faceColors[6] = new BABYLON.Color4(0,0,1,1);
+        
+                    var tower = new BABYLON.MeshBuilder.CreateBox("tower3", {height : 3, width: 3, depth: 3,faceColors: faceColors}, scene);
+        
+                    tower.position.x = x;
+                    tower.position.y = 8;
+                    tower.position.z = z;
+        
+                    tower3TemplateList.push(tower);
+        
+                    tower.actionManager = new BABYLON.ActionManager(scene);
+                    tower.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function () {
+                    CreateTower3(tower.position.x, tower.position.z);
+        
+                    for (var index = 0; index < platList.length; index++)
+                    {
+                        if (platList[index].Mesh.position.x == tower.position.x && platList[index].Mesh.position.z == tower.position.z)
+                        {
+                            platList[index].isEmpty = false;
+                            break;
+                        }
+                    }
+        
+                    for (var index = 0; index < tower3TemplateList.length; index++)
+                    {
+                        tower3TemplateList[index].dispose();
+                    }
+                    tower3TemplateList = [];
+                }));
+        
+        
+                    return tower;
+            }
+            // #endregion
+            //////////////////Enemy1////////////////
+            // #region Enemy
+            function Enemy1(){
+                var mesh;
+                var speed;
+                var maxSpeed;
+                var target;
+                var hp;
+                
+            }
+        
+            function CreateEnemy1(x,z){
+                var e = new Enemy1();
+                isCompleteLoadEnemy = 0;
+
+                BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/enemy/","scene.gltf",scene,function(newMeshes){
+                    e.mesh = newMeshes[0];
+                    //e.mesh = new BABYLON.MeshBuilder.CreateSphere("enemy", {diameter: 2}, scene);
+                    // e.mesh.material=new BABYLON.StandardMaterial("enemyMat",scene);
+                    // e.mesh.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/BabylonJS/Babylon.js/master/Playground/textures/lava/lavatile.jpg",scene);
+                    // hightLighter.addMesh(e.mesh,BABYLON.Color3.Red(),true);
+                    e.mesh.position.x = x;
+                    e.mesh.position.z = z;
+                    e.mesh.scaling = new BABYLON.Vector3(0.02,0.02,0.02);
+
+                    e.hp = 100;
+                    e.maxSpeed = 10;
+                    e.speed = e.maxSpeed;
+                    e.target = listNodes[0];
+                    listEnemy1.push(e);
+                    isCompleteLoadEnemy = 1;
+                })
+                
+            }
+        
+            function MoveLeft(enemy){
+                enemy.mesh.position.x += enemy.speed*deltatime;
+            }
+            function MoveRight(enemy){
+                enemy.mesh.position.x -= enemy.speed*deltatime;
+            }
+            function MoveUp(enemy){
+                enemy.mesh.position.z -= enemy.speed*deltatime;
+                
+                
+            }
+            function MoveDown(enemy){
+                enemy.mesh.position.z += enemy.speed*deltatime;
+            }
+            var count = 0;
+        
+            function Enemy1Move()
+            {
+                if (listEnemy1.length > 0){
+                    for (var index = 0; index < listEnemy1.length; index++ ) {
+        
+                        if (listEnemy1[index].hp <= 0) {
+                            gunshot.play();
+                            listEnemy1[index].mesh.dispose();
+                            waveController.deathCount++;
+                            listEnemy1.splice(index,1);
+                            continue;
+                        }
+
+                        listEnemy1[index].mesh.rotation.y += 0.05;
+                        listEnemy1[index].mesh.rotation = new BABYLON.Vector3(0,listEnemy1[index].mesh.rotation.y,0);
+        
+                        var directionX = listEnemy1[index].mesh.position.x - listEnemy1[index].target.x;
+                        var directionZ = listEnemy1[index].mesh.position.z - listEnemy1[index].target.z;
+                        
+                        if (Math.abs(directionX) < 0.3 && Math.abs(directionZ) < 0.3){
+                            directionX = 0;
+                            directionZ = 0;
+                            listEnemy1[index].mesh.position.x = listEnemy1[index].target.x;
+                            listEnemy1[index].mesh.position.z = listEnemy1[index].target.z;
+                            //enemy1.target = enemy1.target.nextNode;
+                        }
+        
+                        if (directionX < 0){
+                            MoveLeft(listEnemy1[index]);
+                        } else if (directionX > 0) {
+                            MoveRight(listEnemy1[index]);
+                        }
+        
+                        if (directionZ > 0){
+                            
+                            MoveUp(listEnemy1[index]);
+                        } else if (directionZ < 0) {
+                            MoveDown(listEnemy1[index]);
+                        }
+        
+                        if (directionX == directionZ){
+                            if (listEnemy1[index].target.nextNode != null)
+                            listEnemy1[index].target = listEnemy1[index].target.nextNode;
+                            else {
+                                listEnemy1[index].mesh.dispose();
+                                waveController.deathCount++;
+                                listEnemy1.splice(index,1);
+                            }
+                        }
+        
+                        
+                    }
+                }
+            }
+        
+            //////////////////Nodes////////////////
+            function Node()
+            {
+                var x;
+                var z;
+                var mesh;
+                var nextNode;
+            }
+        
+            function CreateNode(x,z)
+            {
+                var n = new Node();
+                n.x = x;
+                n.z = z;
+                n.mesh = new BABYLON.MeshBuilder.CreateSphere("node", {diameter: 1}, scene);
+                hightLighter.addMesh(n.mesh, BABYLON.Color3.Red());
+                n.mesh.position.x = x;
+                n.mesh.position.z = z;
+                n.nextNode = null;
+        
+                if (listNodes.length > 0)
+                    listNodes[listNodes.length - 1].nextNode = n;
+        
+                listNodes.push(n);
+            }
+        
+            function NodeVisibility(ibool){
+                listNodes.forEach(function(node){
+                    node.mesh.isVisible = ibool;
+                })
+            }
+        
+            var checkCanBuild=function(thisTower){
+                var temp=[];
+                var count=0;
+                platList.forEach(p=>{
+                    if(p.isEmpty==false&&(thisTower.Mesh.position.x!=p.Mesh.position.x||thisTower.Mesh.position.z!=p.Mesh.position.z)){
+                        temp.push(p);
+                    }
+                })
+                temp.forEach(t=>{
+                    var d= Math.sqrt((t.Mesh.position.x-thisTower.Mesh.position.x)*(t.Mesh.position.x-thisTower.Mesh.position.x)+(t.Mesh.position.z-thisTower.Mesh.position.z)*(t.Mesh.position.z-thisTower.Mesh.position.z));
+                    if(d<=15){
+                        count++;
+                    }
+                })
+                if(count>0)
+                    return false;
+                else
+                    return true;
+            }
+                // #endregion
+            // #endregion
+            /////////////////////////////////GUI//////////////////////////////////
+            ///////////////////Button Tower1////////////////
+            // #region Button
+            // var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", 'Tower Shoot');
+            // button1.paddingBottom = 5;
+            // button1.left = "240px";
+            // button1.top = "250px";
+            // button1.width = '150px';
+            // button1.height = '30px';
+            // button1.color = "red";
+            // button1.fontSize = 20;
+            // button1.thickness = 0;
+            // button1.background = "black";
+            // advancedTexture.addControl(button1);
+
+            document.getElementById("twShortRanger").onclick = function(){
+                for (var index = 0; index < platList.length; index++)
+                {
+                    if (platList[index].isEmpty == true)//&&checkCanBuild(platList[index]))
+                        CreateTower1Template(platList[index].Mesh.position.x, platList[index].Mesh.position.z);
+                }
+            }
+
+            ///////////////////Button Tower2////////////////
+            // var button2 = BABYLON.GUI.Button.CreateSimpleButton("but2", 'Tower Slow');
+            // button2.paddingBottom = 5;
+            // button2.left = "70px";
+            // button2.top = "250px";
+            // button2.width = '150px';
+            // button2.height = '30px';
+            // button2.color = "red";
+            // button2.fontSize = 20;
+            // button2.thickness = 0;
+            // button2.background = "black";
+            // advancedTexture.addControl(button2);
+
+            document.getElementById("twSlow").onclick = function(){
+                for (var index = 0; index < platList.length; index++)
+                {
+                    if (platList[index].isEmpty == true)//&&checkCanBuild(platList[index]))
+                        CreateTower2Template(platList[index].Mesh.position.x, platList[index].Mesh.position.z);
+                }
+            }        
+        
+            ///////////////////Button Tower3////////////////
+            // var button3 = BABYLON.GUI.Button.CreateSimpleButton("but3", 'Tower3');
+            // button3.paddingBottom = 5;
+            // button3.left = "-100px";
+            // button3.top = "250px";
+            // button3.width = '150px';
+            // button3.height = '30px';
+            // button3.color = "red";
+            // button3.fontSize = 20;
+            // button3.thickness = 0;
+            // button3.background = "black";
+            // advancedTexture.addControl(button3);
+
+            document.getElementById("twLongRanger").onclick = function(){
+                for (var index = 0; index < platList.length; index++)
+                {
+                    if (platList[index].isEmpty == true)//&&checkCanBuild(platList[index]))
+                    {
+                        //platList[index].Platform.dispose();
+                        CreateTower3Template(platList[index].Mesh.position.x, platList[index].Mesh.position.z);
+                    }
+                        
+                }
+            }
+
+            
+             ///////////////////Button Wave////////////////
+            var buttonWave = BABYLON.GUI.Button.CreateSimpleButton("wave", 'Start Wave');
+            buttonWave.paddingBottom = 5;
+            buttonWave.left = "-200px";
+            buttonWave.top = "150px";
+            buttonWave.width = '150px';
+            buttonWave.height = '30px';
+            buttonWave.color = "red";
+            buttonWave.fontSize = 20;
+            buttonWave.thickness = 0;
+            buttonWave.background = "black";
+            advancedTexture.addControl(buttonWave);
+
+           
+
+        
+            buttonWave.onPointerClickObservable.add(function(){
+                if (waveController.bEndWave)
+                    StartWave();
+            })
+        
+            var buttonRestart = BABYLON.GUI.Button.CreateSimpleButton("wave", 'Restart');
+            buttonRestart.paddingBottom = 5;
+            buttonRestart.left = "0px";
+            buttonRestart.top = "150px";
+            buttonRestart.width = '150px';
+            buttonRestart.height = '30px';
+            buttonRestart.color = "red";
+            buttonRestart.fontSize = 20;
+            buttonRestart.thickness = 0;
+            buttonRestart.background = "black";
+            advancedTexture.addControl(buttonRestart);
+
+            document.getElementById("btnRestartWave").onClick = function(){
+                debugger
+                var scene=createScene();
+                engine.stopRenderLoop();
+                engine.runRenderLoop(function () {
+                    advancedTexture.dispose();
+                    scene.render();              
+                })    
+            }
+        
+            buttonRestart.onPointerClickObservable.add(function(){
+                debugger
+                var scene=createScene();
+                engine.stopRenderLoop();
+                engine.runRenderLoop(function () {
+                    advancedTexture.dispose();
+                    scene.render();              
+                })       
+            })
+
+            ///////////////////Button Destroy////////////////
+            var TowerPicked;
+            var buttonDestroy = BABYLON.GUI.Button.CreateSimpleButton("wave", 'Destroy');
+            buttonDestroy.paddingBottom = 5;
+            buttonDestroy.left = "380px";
+            buttonDestroy.top = "150px";
+            buttonDestroy.width = '80px';
+            buttonDestroy.height = '80px';
+            buttonDestroy.color = "red";
+            buttonDestroy.fontSize = 20;
+            buttonDestroy.thickness = 0;
+            buttonDestroy.background = "black";
+            //advancedTexture.addControl(buttonDestroy);
+        
+            buttonDestroy.onPointerClickObservable.add(function(){
+                if (TowerPicked != null) {
+                    text2.text = "ya";
+                    for (var it = 0; it < tower1List.length; it++){
+                        if (tower1List[it] === TowerPicked) {
+                            TowerPicked.Mesh.dispose();
+                            TowerPicked.rangeMesh.dispose();
+                            tower1List.splice(it,1);
+                            break;
+                        }
+                    }
+                    for (var it = 0; it < tower2List.length; it++){
+                        if (tower2List[it] === TowerPicked) {
+                            TowerPicked.Mesh.dispose();
+                            tower2List.splice(it,1);
+                            break;
+                        }
+                    }
+                    for (var it = 0; it < tower3List.length; it++){
+                        if (tower2List[it] === TowerPicked) {
+                            TowerPicked.Mesh.dispose();
+                            tower2List.splice(it,1);
+                            break;
+                        }
+                    }
+                }
+        
+            })
+            // #endregion
+        
+            // #region Mouse Event
+            var onPointerMove = function (evt) {
+                // #region Outline Effect (Hi?u ?ng vi?n quanh tower)
+                // if (TowerPicked != null) {
+                //     for (var it = 0; it < tower1List.length; it++){
+                //         if (tower1List[it] != TowerPicked)
+                //             hightLighter.removeMesh(tower1List[it].Mesh);
+                //     }
+                //     for (var it = 0; it < tower2List.length; it++){
+                //         if (tower2List[it] != TowerPicked)
+                //             hightLighter.removeMesh(tower2List[it].Mesh);
+                //     }
+                //     // for (var it = 0; it < tower3List.length; it++){
+                //     //     if (tower3List[it] != TowerPicked)
+                //     //         hightLighter.removeMesh(tower3List[it].Mesh);
+                //     // }
+                // }
+                // else {
+                //     for (var it = 0; it < tower1List.length; it++){
+                //             hightLighter.removeMesh(tower1List[it].Mesh);
+                //     }
+                //     for (var it = 0; it < tower2List.length; it++){
+                //             hightLighter.removeMesh(tower2List[it].Mesh);
+                //     }
+                //     // for (var it = 0; it < tower3List.length; it++){
+                //     //         hightLighter.removeMesh(tower3List[it].Mesh);
+                //     // }
+                // }
+        
+                var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh){if (mesh.id == "tower1" || mesh.id == "tower2" || mesh.id == "tower3") return mesh;});
+                if (pickInfo.hit) {
+                    if (TowerPicked != null) {
+                        if (pickInfo.pickedMesh != TowerPicked.Mesh)
+                            hightLighter.addMesh(pickInfo.pickedMesh, BABYLON.Color3.Green());
+                    }
+                    else
+                        hightLighter.addMesh(pickInfo.pickedMesh, BABYLON.Color3.Green());
+                    //hightLighter.addMesh(tower1.Mesh, BABYLON.Color3.Green());
+                }
+                // #endregion
+                
+            }
+        
+        
+            var onPointerDown = function (evt) {
+                var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh){if (mesh.id == "tower1" || mesh.id == "tower2" || mesh.id == "tower3") return mesh;});
+                if (pickInfo.hit) {
+                    hightLighter.addMesh(pickInfo.pickedMesh, BABYLON.Color3.Blue());
+                }
+                else
+                {
+                    //TowerPicked = null;
+                }
+        
+                
+            }
+            var CountToOffPickedMesh = 0;
+            var onPointerUp = function () {
+                var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh){if (mesh.id == "tower1" || mesh.id == "tower2" || mesh.id == "tower3") return mesh;});
+                if (pickInfo.hit) {
+                    //hightLighter.addMesh(pickInfo.pickedMesh, BABYLON.Color3.Blue());
+                    for (var it = 0; it < tower1List.length; it++){
+                        if (tower1List[it].Mesh === pickInfo.pickedMesh){
+                            TowerPicked = tower1List[it];
+                            text2.text = "Picked";
+                            break;
+                        }                   
+                    }
+                    for (var it = 0; it < tower2List.length; it++){
+                        if (tower2List[it].Mesh === pickInfo.pickedMesh){
+                            TowerPicked = tower2List[it];
+                            break;
+                        }   
+                    }
+                    for (var it = 0; it < tower3List.length; it++){
+                        if (tower3List[it].Mesh === pickInfo.pickedMesh){
+                            TowerPicked = tower3List[it];
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (TowerPicked != null) {
+                        CountToOffPickedMesh ++;
+                    }
+                    if (CountToOffPickedMesh >= 2) {
+                        TowerPicked = null;
+                        CountToOffPickedMesh = 0;
+                    }
+                }
+            }
+        
+            
+        
+            canvas.addEventListener("pointerdown", onPointerDown, false);
+            canvas.addEventListener("pointerup", onPointerUp, false);
+            canvas.addEventListener("pointermove", onPointerMove, false);
+        
+            // #endregion
+        
+            /////////////////////////////Waveeeeeee///////////////////////////////
+            // #region Waves & Spawner
+            function Spawner() {
+                var id;
+                var amount;
+                var interval;
+                var intervalCount;
+            }
+        
+            function Spawn(id, amount) {
+                var temp = new Spawner();
+                temp.id = id;
+                temp.amount = amount;
+                temp.interval = 5;
+                temp.intervalCount = 0;
+                spawnList.push(temp);
+            }
+        
+            function Spawning() {
+        
+                for (var i = 0; i < spawnList.length; i++) {
+                    //Ki?m tra n?u t?o h?t s? lu?ng Creature r?i thì không t?o n?a
+        			if (spawnList[i].amount <= 0)
+                    continue;
+        
+                    spawnList[i].intervalCount -= deltatime;
+        			
+        			if (spawnList[i].intervalCount > 0)
+        				continue;
+        
+                    spawnList[i].intervalCount = spawnList[i].interval;
+        
+                    spawnList[i].amount -= 1;
+        
+                    switch (spawnList[i].id)
+                    {
+                        case 0: 
+                            CreateEnemy1(SpawnPointX, SpawnPointY);
+                        break;
+                    }
+                }
+            }
+        
+        
+            function WaveProfile() {
+                var bEndWave;
+                var level;
+                var deathCount;
+                var liveCount;
+            }
+        
+            function CreateWave() {
+        		waveController = new WaveProfile();
+        		waveController.level = 1;
+        		waveController.bEndWave = true;
+        		waveController.deathCount = 0;
+        		waveController.liveCount = 0;
+            }
+            
+            function StartWave() {
+                
+                notice.text = "ENEMIES COMING";
+                setTimeout(function(){
+                    notice.text="";
+                },1000);
+                waveController.bEndWave = false;
+        
+                // Thi?t l?p Level c?n có gì
+        		switch (waveController.level)
+        		{
+                    case 1:
+                        waveController.liveCount  =10;
+                        Spawn(0,5);
+                    break;
+                    case 2:
+                        waveController.liveCount  =10;
+                        Spawn(0,10);
+                    break;
+                    case 3:
+                    break;
+                    case 4:
+                    break;
+                    case 5:
+                    break;
+                }
+                isStartWave=true;
+            }
+
+            function EndWave() {
+                waveController.level++;
+        		waveController.bEndWave = true;
+        		waveController.deathCount = 0;
+            }
+        
+            function UpdateWave() {
+                if (waveController.deathCount >= waveController.liveCount && !waveController.bEndWave) {
+                    EndWave();
+                }
+            }
+
+            document.getElementById("btnStartWave").onClick = function(){
+                if (waveController.bEndWave)
+                    StartWave();
+            }
+             // #endregion
+        
+            /////////////////////////////SampleScene//////////////////////////////
+            CreateWave();
+        
+            CreateNode(20,-28);
+            CreateNode(7,-28);
+            CreateNode(7,12);
+            CreateNode(-7,12);
+            CreateNode(-7,-28);
+            CreateNode(-20,-28);
+            CreateNode(-20,20);
+        
+            //setInterval(function(){CreateEnemy1(20,15);},300);
+        
+            CreatePlatform(0,5);
+            CreatePlatform(15,5);
+            CreatePlatform(-15,5);
+            CreatePlatform(0,-5);
+            CreatePlatform(15,-5);
+            CreatePlatform(-15,-5);
+            CreatePlatform(30,5);
+            CreatePlatform(30,-5);
+            CreatePlatform(-30,5);
+            CreatePlatform(-30,-5);
+            CreatePlatform(-30,-15);
+            CreatePlatform(30,-15);
+            CreatePlatform(-30,-25);
+            CreatePlatform(30,-25);
+            CreatePlatform(-15,-25);
+            CreatePlatform(15,-25);
+            CreatePlatform(-15,-15);
+            CreatePlatform(15,-15);
+            CreatePlatform(0,-15);
+            CreatePlatform(0,-25);
+        
+            var updateEnergy = function(){
+                listEnemy1.forEach(enemy=>{
+                    if(energy.intersectsMesh(enemy.mesh,true)){
+                        if(energy.scaling.z>0.1){
+                            energy.scaling.x-=0.02;
+                            energy.scaling.y-=0.02;
+                            energy.scaling.z-=0.02;
+                        }
+                        else {
+                            explosion.play();
+                            energy.dispose();
+                            notice.text="YOU LOSE!!!";
+                            setTimeout(function(){
+                                notice.text="";
+                            },3000);
+                        }
+                        
+                    }
+                })
+            }
+        
+            var updateVictory = function(){
+                if(isStartWave)
+                    if(listEnemy1.length==0&&energy.scaling.z>=0.1&&isCompleteLoadEnemy==1){
+                        notice.text="CONGRATULATION";
+                        setTimeout(function(){
+                            notice.text="";
+                        },3000);
+                        isStartWave=false;
+                    }
+            }
+
+            var updatePlatform = function(){
+                platList.forEach(plat=>{
+                    plat.Mesh.rotation.y -= 0.002;
+                    plat.Mesh.rotation = new BABYLON.Vector3(0, plat.Mesh.rotation.y,0);
+                })
+            }
+        
+            /////////////////////////////Loop//////////////////////////////
+            
+            
+            
+            scene.registerBeforeRender(function(){
+                currentTime = (new Date).getTime();
+                deltatime = (currentTime-lastTime)/1000;
+                lastTime = currentTime;
+        
+                // text1.text = "FPS: " + deltatime.toString();
+        
+        
+                Enemy1Move();
+                UpdateTower1();
+                UpdateBullet();
+                UpdateTower2();
+                UpdateTower3();
+                Spawning();
+                UpdateWave();
+                updateEnergy();
+                updateVictory();
+                updatePlatform();
+                
+                CameraMovemrnt()
+            })
+        
+            return scene;
+        
+        };
+        
+        var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+        engine.loadingUIText = "LOADING ...";
+        var scene = createScene();
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+    <button class="babylonMuteIcon" id="babylonMuteIconBtn" title="Mute" style="top: 2px; left: 60px;"></button>
+</body>
+</html>
