@@ -94,6 +94,8 @@
 
         <script>
         var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+        engine.loadingUIText = "LOADING ...";
 
         var createScene = function () {
         
@@ -175,6 +177,19 @@
                 space.scaling = new BABYLON.Vector3(2,2,2);
                 space.position = new BABYLON.Vector3(220,-200,-220);
             })
+
+            function loadIphone(){
+                var iphone;
+                BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/iphone/","scene.gltf",scene,function(newMeshes){
+                    iphone = newMeshes[0];
+                    setInterval(function(){
+                        iphone.rotation.y+=0.01;
+                    },10);
+                    setTimeout(function(){
+                        iphone.dispose();
+                    },20000);
+                })
+            }
 
             // ground.material=new BABYLON.StandardMaterial("groundmat",scene);
             // // ground.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/images.jpg",scene);
@@ -365,7 +380,6 @@
                 b.speed = speed;
                 b.damage = tower.damage;
                 b.target = target;
-        
                  
                 
                 list.push(b);
@@ -393,17 +407,18 @@
         
                 var x = bullet1.mesh.position.x - distanceX/distanceRatio;
                 var z = bullet1.mesh.position.z - distanceZ/distanceRatio;
+
+                bullet1.mesh.position.y = bullet1.target.mesh.position.y;
                 
                 bullet1.mesh.position.x = x;
                 bullet1.mesh.position.z = z;
-               
         
-                if (bullet1.mesh.position.x == bullet1.target.mesh.position.x && bullet1.mesh.position.z == bullet1.target.mesh.position.z)
+                if (Math.abs(bullet1.mesh.position.x - bullet1.target.mesh.position.x)<0.5 && Math.abs(bullet1.mesh.position.z - bullet1.target.mesh.position.z)<0.5)
+                {
                     bullet1.mesh.dispose();
-                bullet1.target.hp -= 1;
-                gunshot.play();
-                
-        
+                    bullet1.target.hp -= 1;
+                    gunshot.play();
+                }
             }
         
             function UpdateBullet()
@@ -420,12 +435,13 @@
                 })
             }
         
-            var energy = new BABYLON.Mesh.CreateBox("energy",0,scene);
+            var energy;
             BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/energy/","scene.gltf",scene,function(newMeshes){
                 energy = newMeshes[0];
                 energy.position.x=-23;
                 energy.position.z=25;
                 energy.scaling = new BABYLON.Vector3(10,10,10);
+                CreateNode(-23,25);
                 // energy.material=new BABYLON.StandardMaterial("energymat",scene);
                 // setInterval(function(){
                 //     energy.material.emissiveColor = new BABYLON.Color3(Math.random()+0.5,Math.random()+0.5,Math.random()+0.5);
@@ -635,7 +651,7 @@
                         var distance = Math.sqrt(distanceX * distanceX + distanceZ * distanceZ);
                         
                         if (distance < tower1List[it].Range/2 && tower1List[it].fireTimeCount < 0){
-                                CreateBullet1(listEnemy1[ie], tower1List[it].listBullet1,tower1List[it],40);
+                                CreateBullet1(listEnemy1[ie], tower1List[it].listBullet1,tower1List[it],15);
                                 tower1List[it].fireTimeCount = tower1List[it].fireTime;
                                 
                         }
@@ -1077,16 +1093,42 @@
                     advancedTexture.dispose();
                     scene.render();              
                 })    
+                // tower1List.forEach(t1=>{
+                //     t1.dispose();
+                // })
+                // tower2List.forEach(t2=>{
+                //     t2.dispose();
+                // })
+                // tower3List.forEach(t3=>{
+                //     t3.dispose();
+                // })
+                // platList.forEach(p=>{
+                //     p.isEmpty=true;
+                // })
+                // energy.scaling = new BABYLON.Vector3(10,10,10);
+
             }
         
             buttonRestart.onPointerClickObservable.add(function(){
-                debugger
                 var scene=createScene();
                 engine.stopRenderLoop();
                 engine.runRenderLoop(function () {
                     advancedTexture.dispose();
                     scene.render();              
                 })       
+                // tower1List.forEach(t1=>{
+                //     t1.dispose();
+                // })
+                // tower2List.forEach(t2=>{
+                //     t2.dispose();
+                // })
+                // tower3List.forEach(t3=>{
+                //     t3.dispose();
+                // })
+                // platList.forEach(p=>{
+                //     p.isEmpty=true;
+                // })
+                // energy.scaling = new BABYLON.Vector3(10,10,10);
             })
 
             ///////////////////Button Destroy////////////////
@@ -1347,8 +1389,8 @@
             CreateNode(7,12);
             CreateNode(-7,12);
             CreateNode(-7,-28);
-            CreateNode(-20,-28);
-            CreateNode(energy.position.x,energy.position.z);
+            CreateNode(-23,-28);
+            
         
             //setInterval(function(){CreateEnemy1(20,15);},300);
         
@@ -1375,11 +1417,12 @@
         
             var updateEnergy = function(){
                 listEnemy1.forEach(enemy=>{
-                    if(energy.intersectsMesh(enemy.mesh,true)){
-                        if(energy.scaling.z>0.1){
-                            energy.scaling.x-=0.02;
-                            energy.scaling.y-=0.02;
-                            energy.scaling.z-=0.02;
+                    if(Math.abs(enemy.mesh.position.x-energy.position.x)<2 && Math.abs(enemy.mesh.position.z-energy.position.z)<2){
+                        if(energy.scaling.z>0.5){
+                            energy.scaling.x-=0.4;
+                            energy.scaling.y-=0.4;
+                            energy.scaling.z-=0.4;
+                            energy.scaling = new BABYLON.Vector3(energy.scaling.x,energy.scaling.y,energy.scaling.z);
                         }
                         else {
                             explosion.play();
@@ -1396,8 +1439,10 @@
         
             var updateVictory = function(){
                 if(isStartWave)
-                    if(listEnemy1.length==0&&energy.scaling.z>=0.1&&isCompleteLoadEnemy==1){
+                    if(listEnemy1.length==0&&energy.scaling.z>=0.5&&isCompleteLoadEnemy==1){
                         notice.text="CONGRATULATION";
+                        waveController.bEndWave=true;
+                        // loadIphone();
                         setTimeout(function(){
                             notice.text="";
                         },3000);
@@ -1442,8 +1487,6 @@
         
         };
         
-        var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
-        engine.loadingUIText = "LOADING ...";
         var scene = createScene();
 
         engine.runRenderLoop(function () {
