@@ -107,6 +107,7 @@
             var backgroundSong;
             var gunshot;
             var explosion;
+            var isCompleteLoadEnemy = 0;
 
             /////////////////////// SOUND ///////////////////////////
             var soundManager = function (scene) {
@@ -796,20 +797,26 @@
         
             function CreateEnemy1(x,z){
                 var e = new Enemy1();
-        
-                e.mesh = new BABYLON.MeshBuilder.CreateSphere("enemy", {diameter: 2}, scene);
-                e.mesh.material=new BABYLON.StandardMaterial("enemyMat",scene);
-                e.mesh.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/BabylonJS/Babylon.js/master/Playground/textures/lava/lavatile.jpg",scene);
-                hightLighter.addMesh(e.mesh,BABYLON.Color3.Red(),true);
-                e.mesh.position.x = x;
-                e.mesh.position.z = z;
-        
-                e.hp = 100;
-                e.maxSpeed = 20;
-                e.speed = e.maxSpeed;
-                e.target = listNodes[0];
+                isCompleteLoadEnemy = 0;
+
+                BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/enemy/","scene.gltf",scene,function(newMeshes){
+                    e.mesh = newMeshes[0];
+                    //e.mesh = new BABYLON.MeshBuilder.CreateSphere("enemy", {diameter: 2}, scene);
+                    // e.mesh.material=new BABYLON.StandardMaterial("enemyMat",scene);
+                    // e.mesh.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/BabylonJS/Babylon.js/master/Playground/textures/lava/lavatile.jpg",scene);
+                    // hightLighter.addMesh(e.mesh,BABYLON.Color3.Red(),true);
+                    e.mesh.position.x = x;
+                    e.mesh.position.z = z;
+                    e.mesh.scaling = new BABYLON.Vector3(0.02,0.02,0.02);
+
+                    e.hp = 100;
+                    e.maxSpeed = 10;
+                    e.speed = e.maxSpeed;
+                    e.target = listNodes[0];
+                    listEnemy1.push(e);
+                    isCompleteLoadEnemy = 1;
+                })
                 
-                listEnemy1.push(e);
             }
         
             function MoveLeft(enemy){
@@ -840,6 +847,9 @@
                             listEnemy1.splice(index,1);
                             continue;
                         }
+
+                        listEnemy1[index].mesh.rotation.y += 0.05;
+                        listEnemy1[index].mesh.rotation = new BABYLON.Vector3(0,listEnemy1[index].mesh.rotation.y,0);
         
                         var directionX = listEnemy1[index].mesh.position.x - listEnemy1[index].target.x;
                         var directionZ = listEnemy1[index].mesh.position.z - listEnemy1[index].target.z;
@@ -1213,7 +1223,7 @@
                 var temp = new Spawner();
                 temp.id = id;
                 temp.amount = amount;
-                temp.interval = 0.3;
+                temp.interval = 5;
                 temp.intervalCount = 0;
                 spawnList.push(temp);
             }
@@ -1272,7 +1282,7 @@
         		{
                     case 1:
                         waveController.liveCount  =10;
-                        Spawn(0,10);
+                        Spawn(0,5);
                     break;
                     case 2:
                         waveController.liveCount  =10;
@@ -1363,7 +1373,7 @@
         
             var updateVictory=function(){
                 if(isStartWave)
-                    if(listEnemy1.length==0&&energy.scaling.z>=0.1){
+                    if(listEnemy1.length==0&&energy.scaling.z>=0.1&&isCompleteLoadEnemy==1){
                         notice.text="CONGRATULATION";
                         setTimeout(function(){
                             notice.text="";
