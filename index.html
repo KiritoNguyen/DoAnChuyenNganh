@@ -568,14 +568,14 @@
         
         
                 var tower2 = new Tower2();
-                 BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Model/", "Tower2.babylon", scene, function (newMeshes) {
+                 BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/slow_tower/", "scene.gltf", scene, function (newMeshes) {
                     tower2.Mesh = newMeshes[0];
                     tower2.Mesh.material=new BABYLON.StandardMaterial("tower2Mat",scene);
                     tower2.Mesh.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Image/mosaic_stones_structure_pattern_ground_texture.jpg",scene);
-                    tower2.Mesh.scaling=new BABYLON.Vector3(7 , 7, 7);
+                    tower2.Mesh.scaling=new BABYLON.Vector3(0.03 , 0.03, 0.03);
                     hightLighter.addMesh(tower2.Mesh, BABYLON.Color3.Green());
                     tower2.Mesh.position.x = x;
-                    tower2.Mesh.position.y = 8;
+                    tower2.Mesh.position.y = -3;
                     tower2.Mesh.position.z = z;
         
                     tower2.fireTime = 0.0167;
