@@ -326,13 +326,13 @@
             text1.left = -220;
             text1.top = -270;
          
-            var text2 = new BABYLON.GUI.TextBlock();
-            text2.text = "TOWER DEFENSE";
-            text2.color = "yellow";
-            text2.fontSize = 35;
-            text2.fontWeight.bold="24000";
-            text2.left = -20;
-            text2.top = -270;
+            // var text2 = new BABYLON.GUI.TextBlock();
+            // text2.text = "TOWER DEFENSE";
+            // text2.color = "yellow";
+            // text2.fontSize = 35;
+            // text2.fontWeight.bold="24000";
+            // text2.left = -20;
+            // text2.top = -270;
         
             var notice = new BABYLON.GUI.TextBlock();
             notice.color = "white";
@@ -532,7 +532,7 @@
                     tower1.rangeMesh = new BABYLON.MeshBuilder.CreateSphere("range", {diameterX:tower1.Range, diameterZ: tower1.Range, diameterY: 0.1}, scene);
                     tower1.rangeMesh.position.x = x;
                     tower1.rangeMesh.position.z = z;
-                    tower1.rangeMesh.position.y = 8;
+                    tower1.rangeMesh.position.y = tower1.Mesh.position.y;
                     tower1.rangeMesh.material = rangeMat;
                     
         
@@ -1018,7 +1018,7 @@
             // button2.background = "black";
             // advancedTexture.addControl(button2);
 
-            document.getElementById("twSlow").onclick = function(){
+            document.getElementById("twSlow").onclick = function(){ 
                 for (var index = 0; index < platList.length; index++)
                 {
                     if (platList[index].isEmpty == true)//&&checkCanBuild(platList[index]))
@@ -1053,40 +1053,36 @@
 
             
              ///////////////////Button Wave////////////////
-            var buttonWave = BABYLON.GUI.Button.CreateSimpleButton("wave", 'Start Wave');
-            buttonWave.paddingBottom = 5;
-            buttonWave.left = "-200px";
-            buttonWave.top = "150px";
-            buttonWave.width = '150px';
-            buttonWave.height = '30px';
-            buttonWave.color = "red";
-            buttonWave.fontSize = 20;
-            buttonWave.thickness = 0;
-            buttonWave.background = "black";
-            advancedTexture.addControl(buttonWave);
+            // var buttonWave = BABYLON.GUI.Button.CreateSimpleButton("wave", 'Start Wave');
+            // buttonWave.paddingBottom = 5;
+            // buttonWave.left = "-200px";
+            // buttonWave.top = "150px";
+            // buttonWave.width = '150px';
+            // buttonWave.height = '30px';
+            // buttonWave.color = "red";
+            // buttonWave.fontSize = 20;
+            // buttonWave.thickness = 0;
+            // buttonWave.background = "black";
+            // advancedTexture.addControl(buttonWave);
 
-           
-
-        
-            buttonWave.onPointerClickObservable.add(function(){
+            document.getElementById("btnStartWave").onclick = function(){
                 if (waveController.bEndWave)
                     StartWave();
-            })
+            }
         
-            var buttonRestart = BABYLON.GUI.Button.CreateSimpleButton("wave", 'Restart');
-            buttonRestart.paddingBottom = 5;
-            buttonRestart.left = "0px";
-            buttonRestart.top = "150px";
-            buttonRestart.width = '150px';
-            buttonRestart.height = '30px';
-            buttonRestart.color = "red";
-            buttonRestart.fontSize = 20;
-            buttonRestart.thickness = 0;
-            buttonRestart.background = "black";
-            advancedTexture.addControl(buttonRestart);
+            // var buttonRestart = BABYLON.GUI.Button.CreateSimpleButton("wave", 'Restart');
+            // buttonRestart.paddingBottom = 5;
+            // buttonRestart.left = "0px";
+            // buttonRestart.top = "150px";
+            // buttonRestart.width = '150px';
+            // buttonRestart.height = '30px';
+            // buttonRestart.color = "red";
+            // buttonRestart.fontSize = 20;
+            // buttonRestart.thickness = 0;
+            // buttonRestart.background = "black";
+            // advancedTexture.addControl(buttonRestart);
 
-            document.getElementById("btnRestartWave").onClick = function(){
-                debugger
+            document.getElementById("btnRestartWave").onclick = function(){
                 var scene=createScene();
                 engine.stopRenderLoop();
                 engine.runRenderLoop(function () {
@@ -1109,27 +1105,27 @@
 
             }
         
-            buttonRestart.onPointerClickObservable.add(function(){
-                var scene=createScene();
-                engine.stopRenderLoop();
-                engine.runRenderLoop(function () {
-                    advancedTexture.dispose();
-                    scene.render();              
-                })       
-                // tower1List.forEach(t1=>{
-                //     t1.dispose();
-                // })
-                // tower2List.forEach(t2=>{
-                //     t2.dispose();
-                // })
-                // tower3List.forEach(t3=>{
-                //     t3.dispose();
-                // })
-                // platList.forEach(p=>{
-                //     p.isEmpty=true;
-                // })
-                // energy.scaling = new BABYLON.Vector3(10,10,10);
-            })
+            // buttonRestart.onPointerClickObservable.add(function(){
+            //     var scene=createScene();
+            //     engine.stopRenderLoop();
+            //     engine.runRenderLoop(function () {
+            //         advancedTexture.dispose();
+            //         scene.render();              
+            //     })       
+            //     // tower1List.forEach(t1=>{
+            //     //     t1.dispose();
+            //     // })
+            //     // tower2List.forEach(t2=>{
+            //     //     t2.dispose();
+            //     // })
+            //     // tower3List.forEach(t3=>{
+            //     //     t3.dispose();
+            //     // })
+            //     // platList.forEach(p=>{
+            //     //     p.isEmpty=true;
+            //     // })
+            //     // energy.scaling = new BABYLON.Vector3(10,10,10);
+            // })
 
             ///////////////////Button Destroy////////////////
             var TowerPicked;
