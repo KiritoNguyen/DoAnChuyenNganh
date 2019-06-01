@@ -174,13 +174,30 @@
             // var ground =new BABYLON.MeshBuilder.CreateGround("ground",{width:200,height:200},scene);
             // ground.position.y=-10;
 
-            var space;
-            BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/space/","scene.gltf",scene,function(newMeshes){
-                space = newMeshes[0];
-                space.scaling = new BABYLON.Vector3(2,2,2);
-                space.position = new BABYLON.Vector3(220,-200,-220);
+            var logo;
+            BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/logo/","scene.gltf",scene,function(newMeshes){
+                logo = newMeshes[0];
+                logo.position = new BABYLON.Vector3(0,0,0);
+                logo.rotation.z = new BABYLON.Vector3(0,0,Math.PI/2);
+                logo.scaling = new BABYLON.Vector3(5,5,5);
+            //     setInterval(function(){
+            //         logo.rotation.y += 0.01;
+            //         logo.rotation = new BABYLON.Vector3(0,logo.rotation.y,0);
+            //     },50);
+            //     setTimeout(function(){
+            //         logo.dispose();
+            //     },10000);
+                
             })
+            var space;
+                BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/space/","scene.gltf",scene,function(newMeshes){
+                    space = newMeshes[0];
+                    space.scaling = new BABYLON.Vector3(2,2,2);
+                    space.position = new BABYLON.Vector3(220,-200,-220);
+                })
 
+
+            
             function loadIphone(){
                 var iphone;
                 BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/iphone/","scene.gltf",scene,function(newMeshes){
@@ -350,10 +367,10 @@
             advancedTexture.addControl(notice);
         
             setTimeout(function(){
-                notice.text="SETUP YOUR TOWER"
+                notice.text="LOADING . . ."
                 setTimeout(function(){
                     notice.text="";
-                },5000);
+                },10000);
             },3000)
         
             // #endregion
@@ -946,7 +963,7 @@
                 var n = new Node();
                 n.x = x;
                 n.z = z;
-                n.mesh = new BABYLON.MeshBuilder.CreateSphere("node", {diameter: 1}, scene);
+                n.mesh = new BABYLON.MeshBuilder.CreateSphere("node", {diameter: 0.1}, scene);
                 hightLighter.addMesh(n.mesh, BABYLON.Color3.Red());
                 n.mesh.position.x = x;
                 n.mesh.position.z = z;
