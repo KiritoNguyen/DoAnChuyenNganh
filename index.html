@@ -194,7 +194,7 @@
           
             advancedTexture.rootContainer.scaleX = window.devicePixelRatio;
             advancedTexture.rootContainer.scaleY = window.devicePixelRatio;
-            
+
             var notice = new BABYLON.GUI.TextBlock();
             notice.color = "white";
             notice.fontSize = 60;
@@ -229,6 +229,7 @@
                 var Enemy;
                 var SlowTower;
                 var ShortTower;
+                var Bullet;
             }
             var energy;
             var _model = new Model();
@@ -284,6 +285,14 @@
                     console.log("Load model short tower complete!");
                     notice.text="";
                     camera.attachControl(canvas, true);
+                });
+                _model.Bullet = new BABYLON.Mesh.CreateBox("bulletModel",0.0001,scene);
+                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/battle_tower/", "scene.gltf", scene, function (newMeshes) {
+                    _model.Bullet = newMeshes[0];
+                    _model.Bullet.scaling=new BABYLON.Vector3(0.01 , 0.01, 0.01);
+                    hightLighter.addMesh(_model.bullet, BABYLON.Color3.Red());
+                    _model.Bullet.position = new BABYLON.Vector3(0,1000,0);
+                    console.log("Load model bullet complete!");
                 })
                 
                 
