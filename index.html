@@ -190,6 +190,22 @@
             // //     },10000);
                 
             // })
+            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI('UI', undefined, undefined, BABYLON.Texture.NEAREST_NEAREST);
+          
+            advancedTexture.rootContainer.scaleX = window.devicePixelRatio;
+            advancedTexture.rootContainer.scaleY = window.devicePixelRatio;
+            
+            var notice = new BABYLON.GUI.TextBlock();
+            notice.color = "white";
+            notice.fontSize = 60;
+            notice.fontWeight.bold="24000";
+            notice.left = -0;
+            notice.top = -50;
+        
+        
+            // advancedTexture.addControl(text1);
+            //advancedTexture.addControl(text2);
+            advancedTexture.addControl(notice);
             
             function loadIphone(){
                 var iphone;
@@ -212,17 +228,21 @@
                 var Energy;
                 var Enemy;
                 var SlowTower;
+                var ShortTower;
             }
             var energy;
             var _model = new Model();
             function LoadAllModel(){
+                notice.text="LOADING . . .";
+                camera.attachControl(canvas, false);
                 _model.Platform = new BABYLON.Mesh.CreateBox("platModel",0.0001,scene);
                 BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/platform/", "scene.gltf", scene, function (newMeshes) {
                     _model.Platform = newMeshes[0];
                     _model.Platform.scaling = new BABYLON.Vector3(0.009, 0.009, 0.009);
                     _model.Platform.position = new BABYLON.Vector3(0,1000,0);
                     isLoadModelSucess = 1;
-                   CreateAllPlatform();
+                    CreateAllPlatform();
+                    console.log("Load model Platform complete!");
                 });
                 _model.Space = new BABYLON.Mesh.CreateBox("spaceModel",0.0001,scene);
                 BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/space/","scene.gltf",scene,function(newMeshes){
@@ -238,20 +258,35 @@
                     _model.Energy.scaling = new BABYLON.Vector3(10,10,10);
                     energy = _model.Energy;
                     CreateNode(-23,25);
+                    console.log("Load model energy complete!");
                 });
                 _model.Enemy = new BABYLON.Mesh.CreateBox("enemyModel",0.0001,scene);
                 BABYLON.SceneLoader.ImportMesh("","https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/enemy/","scene.gltf",scene,function(newMeshes){
                     _model.Enemy = newMeshes[0];
                     _model.Enemy.scaling = new BABYLON.Vector3(0.02,0.02,0.02);
                     _model.Enemy.position = new BABYLON.Vector3(0,1000,0);
-                })
+                    console.log("Load model enemy complete!");
+                });
                 _model.SlowTower = new BABYLON.Mesh.CreateBox("slowTowerModel",0.0001,scene);
                 BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/slow_tower/", "scene.gltf", scene, function (newMeshes) {
                     _model.SlowTower = newMeshes[0];
                     _model.SlowTower.scaling=new BABYLON.Vector3(0.03 , 0.03, 0.03);
                     hightLighter.addMesh(_model.SlowTower, BABYLON.Color3.Green());
                     _model.SlowTower.position = new BABYLON.Vector3(0,1000,0);
+                    console.log("Load model slow tower complete!");
+                });
+                _model.ShortTower = new BABYLON.Mesh.CreateBox("shortTowerModel",0.0001,scene);
+                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/battle_tower/", "scene.gltf", scene, function (newMeshes) {
+                    _model.ShortTower = newMeshes[0];
+                    _model.ShortTower.scaling=new BABYLON.Vector3(0.01 , 0.01, 0.01);
+                    hightLighter.addMesh(_model.ShortTower, BABYLON.Color3.Blue());
+                    _model.ShortTower.position = new BABYLON.Vector3(0,1000,0);
+                    console.log("Load model short tower complete!");
+                    notice.text="";
+                    camera.attachControl(canvas, true);
                 })
+                
+                
 
             }
             LoadAllModel();
@@ -376,11 +411,6 @@
             var rangeMat = new BABYLON.StandardMaterial("greenMat", scene);
         	rangeMat.alpha = 0.2;
         
-            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI('UI', undefined, undefined, BABYLON.Texture.NEAREST_NEAREST);
-          
-            advancedTexture.rootContainer.scaleX = window.devicePixelRatio;
-            advancedTexture.rootContainer.scaleY = window.devicePixelRatio;
-        
             //Debug
             var text1 = new BABYLON.GUI.TextBlock();
             text1.text = "10";
@@ -398,25 +428,6 @@
             // text2.fontWeight.bold="24000";
             // text2.left = -20;
             // text2.top = -270;
-        
-            var notice = new BABYLON.GUI.TextBlock();
-            notice.color = "white";
-            notice.fontSize = 60;
-            notice.fontWeight.bold="24000";
-            notice.left = -0;
-            notice.top = -50;
-        
-        
-            // advancedTexture.addControl(text1);
-            //advancedTexture.addControl(text2);
-            advancedTexture.addControl(notice);
-        
-            setTimeout(function(){
-                notice.text="LOADING . . ."
-                setTimeout(function(){
-                    notice.text="";
-                },10000);
-            },3000)
         
             // #endregion
         
@@ -594,53 +605,40 @@
             //////////////////////towerShort///////////////////
             // #region Tower
             //Lam Tower 1 xoay xoay cho dep
-            function towerShort()
-            {
-                var Range;
-                var Damage;
-                var Mesh;
-                var rangeMesh;
-                var listBullet1;
-                var fireTime;
-                var fireTimeCount;
-            }
+            
         
             function CreatetowerShort(x,z)
             {
+                function towerShort()
+                {
+                    var Range;
+                    var Damage;
+                    var Mesh;
+                    var rangeMesh;
+                    var listBullet1;
+                    var fireTime;
+                    var fireTimeCount;
+                }
                 var towerShort = new towerShort();
-                 BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Model/", "Tower3.babylon", scene, function (newMeshes) {
-                    towerShort.Mesh = newMeshes[0];
-                    towerShort.Mesh.material=new BABYLON.StandardMaterial("towerShortMat",scene);
-                    towerShort.Mesh.material.diffuseTexture=new BABYLON.Texture("https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Image/Texttue3.jpg",scene);
-                    towerShort.Mesh.scaling=new BABYLON.Vector3(7 , 7, 7);
-                    hightLighter.addMesh(towerShort.Mesh, BABYLON.Color3.Blue());
-                    towerShort.Mesh.position.x = x;
-                    towerShort.Mesh.position.y = 8;
-                    towerShort.Mesh.position.z = z;
-        
-                    towerShort.fireTime = 1;
-                    towerShort.fireTimeCount = towerShort.fireTime;
-                    towerShort.Range = 20;
-                    towerShort.Damage = 10;
-                    
-                    towerShort.listBullet1 = [];
-        
-                    towerShort.rangeMesh = new BABYLON.MeshBuilder.CreateSphere("range", {diameterX:towerShort.Range, diameterZ: towerShort.Range, diameterY: 0.1}, scene);
-                    towerShort.rangeMesh.position.x = x;
-                    towerShort.rangeMesh.position.z = z;
-                    towerShort.rangeMesh.position.y = towerShort.Mesh.position.y;
-                    towerShort.rangeMesh.material = rangeMat;
-                    
-        
-                    
-                    //if (debugRange == false)
-                    //    towerShort.rangeMesh.isVisible = false;
-        
-        
-                    towerShortList.push(towerShort);
-        
-                    return towerShort;
-                 })
+                towerShort.Mesh = _model.ShortTower.clone(towerShortList.length -1);
+                towerShort.Mesh.position = new BABYLON.Vector3(x,-3,z);
+                
+                towerShort.fireTime = 1;
+                towerShort.fireTimeCount = towerShort.fireTime;
+                towerShort.Range = 20;
+                towerShort.Damage = 10;
+                
+                towerShort.listBullet1 = [];
+    
+                towerShort.rangeMesh = new BABYLON.MeshBuilder.CreateSphere("range", {diameterX:towerShort.Range, diameterZ: towerShort.Range, diameterY: 0.1}, scene);
+                towerShort.rangeMesh.position.x = x;
+                towerShort.rangeMesh.position.z = z;
+                towerShort.rangeMesh.position.y = towerShort.Mesh.position.y;
+                towerShort.rangeMesh.material = rangeMat;
+    
+                towerShortList.push(towerShort);
+    
+                return towerShort;
             }
         
             /////////////////////towerSlow////////////////////
@@ -673,7 +671,7 @@
                 towerSlow.rangeMesh = new BABYLON.MeshBuilder.CreateSphere("range", {diameterX:towerSlow.Range, diameterZ: towerSlow.Range, diameterY: 0.1}, scene);
                 towerSlow.rangeMesh.position.x = x;
                 towerSlow.rangeMesh.position.z = z;
-                towerSlow.rangeMesh.position.y = 8;
+                towerSlow.rangeMesh.position.y = towerSlow.Mesh.position.y;
                 towerSlow.rangeMesh.material = rangeMat;
     
                 towerSlowList.push(towerSlow);
@@ -731,13 +729,15 @@
                     towerShortList[it].fireTimeCount -= 0.0167;
         
                     for (var ie = 0; ie < listEnemy1.length; ie++)  {
-                        var distanceX = Math.abs(listEnemy1[ie].mesh.position.x - towerShortList[it].Mesh.position.x);
-                        
-                        var distanceZ = Math.abs(listEnemy1[ie].mesh.position.z - towerShortList[it].Mesh.position.z);
+                        var diffX = listEnemy1[ie].mesh.position.x - towerShortList[it].Mesh.position.x;
+                        var distanceX = Math.abs(diffX);
+                        var diffZ = listEnemy1[ie].mesh.position.z - towerShortList[it].Mesh.position.z;
+                        var distanceZ = Math.abs(diffZ);
                         var distance = Math.sqrt(distanceX * distanceX + distanceZ * distanceZ);
                         
                         if (distance < towerShortList[it].Range/2 && towerShortList[it].fireTimeCount < 0){
                                 CreateBullet1(listEnemy1[ie], towerShortList[it].listBullet1,towerShortList[it],15);
+                                towerShortList[it].Mesh.rotation = new BABYLON.Vector3(0,Math.atan2(diffX,diffZ),0);
                                 towerShortList[it].fireTimeCount = towerShortList[it].fireTime;
                                 
                         }
