@@ -278,7 +278,7 @@
                     console.log("Load model slow tower complete!");
                 });
                 _model.ShortTower = new BABYLON.Mesh.CreateBox("shortTowerModel",0.0001,scene);
-                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/battle_tower/", "scene.gltf", scene, function (newMeshes) {
+                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/e801d46ddcc2256b9a941d2a65cad00bd44bdcb2/model/battle_tower/", "scene.gltf", scene, function (newMeshes) {
                     _model.ShortTower = newMeshes[0];
                     _model.ShortTower.scaling=new BABYLON.Vector3(0.01 , 0.01, 0.01);
                     hightLighter.addMesh(_model.ShortTower, BABYLON.Color3.Blue());
@@ -288,7 +288,7 @@
                     camera.attachControl(canvas, true);
                 });
                 _model.LongTower = new BABYLON.Mesh.CreateBox("longTowerModel",0.0001,scene);
-                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/slow_tower/", "scene.gltf", scene, function (newMeshes) {
+                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/long_tower/", "scene.gltf", scene, function (newMeshes) {
                     _model.LongTower = newMeshes[0];
                     _model.LongTower.scaling=new BABYLON.Vector3(0.01 , 0.01, 0.01);
                     hightLighter.addMesh(_model.LongTower, BABYLON.Color3.Red());
