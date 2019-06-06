@@ -228,6 +228,7 @@
                 var Energy;
                 var Enemy;
                 var SlowTower;
+                var LongTower;
                 var ShortTower;
                 var Bullet;
             }
@@ -283,6 +284,16 @@
                     hightLighter.addMesh(_model.ShortTower, BABYLON.Color3.Blue());
                     _model.ShortTower.position = new BABYLON.Vector3(0,1000,0);
                     console.log("Load model short tower complete!");
+                    notice.text="";
+                    camera.attachControl(canvas, true);
+                });
+                _model.LongTower = new BABYLON.Mesh.CreateBox("longTowerModel",0.0001,scene);
+                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/slow_tower/", "scene.gltf", scene, function (newMeshes) {
+                    _model.LongTower = newMeshes[0];
+                    _model.LongTower.scaling=new BABYLON.Vector3(0.01 , 0.01, 0.01);
+                    hightLighter.addMesh(_model.LongTower, BABYLON.Color3.Red());
+                    _model.LongTower.position = new BABYLON.Vector3(0,1000,0);
+                    console.log("Load model long tower complete!");
                     notice.text="";
                     camera.attachControl(canvas, true);
                 });
@@ -399,10 +410,10 @@
             var platList = [];
             var towerShortList = [];
             var towerSlowList = [];
-            var tower3List = [];
+            var towerLongList = [];
             var towerShortTemplateList = [];
             var towerSlowTemplateList = [];
-            var tower3TemplateList = [];
+            var towerLongTemplateList = [];
             var listEnemy1 = [];
             var listNodes = [];
             var spawnList = [];
@@ -509,7 +520,7 @@
                         Bullet1Attack(bullet);
                     })
                 })
-                tower3List.forEach(function(tower){
+                towerLongList.forEach(function(tower){
                     tower.listBullet.forEach(function(bullet){
                         Bullet1Attack(bullet);
                     })
@@ -685,7 +696,7 @@
             }
         
             /////////////////////Tower3////////////////////
-            function Tower3()
+            function towerLong()
             {
                 var Range;
                 var Damage;
@@ -696,35 +707,37 @@
                 var fireTimeCount;
             }
         
-            function CreateTower3(x,z)
+            function CreatetowerLong(x,z)
             {
-                var tower = new Tower3();
-                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/huynhthanhnhan/MyImage/master/Model/", "Tower.babylon", scene, function (newMeshes) {
-                    tower.Mesh = newMeshes[0];
-                    hightLighter.addMesh(tower.Mesh, BABYLON.Color3.Yellow());
-                    tower.Mesh.position.x = x;
-                    tower.Mesh.position.y = 0;
-                    tower.Mesh.position.z = z;
-        
-                    tower.fireTime = 2;
-                    tower.fireTimeCount = tower.fireTime;
-                    tower.Range = 47;
-                    tower.Damage = 10;
+                function towerLong()
+                {
+                    var Range;
+                    var Damage;
+                    var Mesh;
+                    var rangeMesh;
+                }
+                var towerLong = new towerLong();
+                towerLong.Mesh = _model.LongTower.clone(towerLongList.length - 1);
+                towerLong.Mesh.position = new BABYLON.Vector3(x, -3, z);
+
+                towerLong.fireTime = 2;
+                    // tower.fireTimeCount = tower.fireTime;
+                    towerLong.Range = 47;
+                    towerLong.Damage = 10;
                     
-                    tower.listBullet = [];
+                    towerLong.listBullet = [];
         
-                    tower.rangeMesh = new BABYLON.MeshBuilder.CreateSphere("range", {diameterX:tower.Range, diameterZ: tower.Range, diameterY: 0.1}, scene);
-                    tower.rangeMesh.position.x = x;
-                    tower.rangeMesh.position.z = z;
-                    tower.rangeMesh.position.y = 8;
-                    tower.rangeMesh.material = rangeMat;
+                    towerLong.rangeMesh = new BABYLON.MeshBuilder.CreateSphere("range", {diameterX:tower.Range, diameterZ: tower.Range, diameterY: 0.1}, scene);
+                    towerLong.rangeMesh.position.x = x;
+                    towerLong.rangeMesh.position.z = z;
+                    towerLong.rangeMesh.position.y = towerLong.Mesh.position.y;
+                    towerLong.rangeMesh.material = rangeMat;
         
                     //if (debugRange == false)
                     //    towerShort.rangeMesh.isVisible = false;
-                    tower3List.push(tower);
-                })
+                    towerLongList.push(towerLong);
                 
-                return tower;
+                return towerLong;
             }
             
             /////////////////////Tower Update////////////////
@@ -769,21 +782,35 @@
                
             }
         
-            function UpdateTower3(){
-                for (var it = 0; it < tower3List.length; it++){
-                    tower3List[it].fireTimeCount -= 0.0167;
-                    for (var ie = 0; ie < listEnemy1.length; ie++)  {
-                        var distanceX = Math.abs(listEnemy1[ie].mesh.position.x - tower3List[it].Mesh.position.x);
+            function UpdatetowerLong(){
+                // for (var it = 0; it < tower3List.length; it++){
+                //     tower3List[it].fireTimeCount -= 0.0167;
+                //     for (var ie = 0; ie < listEnemy1.length; ie++)  {
+                //         var distanceX = Math.abs(listEnemy1[ie].mesh.position.x - tower3List[it].Mesh.position.x);
                         
-                        var distanceZ = Math.abs(listEnemy1[ie].mesh.position.z - tower3List[it].Mesh.position.z);
+                //         var distanceZ = Math.abs(listEnemy1[ie].mesh.position.z - tower3List[it].Mesh.position.z);
+                //         var distance = Math.sqrt(distanceX * distanceX + distanceZ * distanceZ);
+                        
+                //         if (distance < tower3List[it].Range/2 && tower3List[it].fireTimeCount < 0){
+                //                 CreateBullet1(listEnemy1[ie], tower3List[it].listBullet,tower3List[it],150);
+                //                 tower3List[it].fireTimeCount = tower3List[it].fireTime;
+                //         }
+                        
+                //     }
+                // }
+                for (var ie = 0; ie < listEnemy1.length; ie++){
+                    var count=0;
+                    for (var it = 0; it < towerLongList.length; it++) {
+                        var distanceX = Math.abs(listEnemy1[ie].mesh.position.x - towerLongList[it].Mesh.position.x);
+                        var distanceZ = Math.abs(listEnemy1[ie].mesh.position.z - towerLongList[it].Mesh.position.z);
                         var distance = Math.sqrt(distanceX * distanceX + distanceZ * distanceZ);
-                        
-                        if (distance < tower3List[it].Range/2 && tower3List[it].fireTimeCount < 0){
-                                CreateBullet1(listEnemy1[ie], tower3List[it].listBullet,tower3List[it],150);
-                                tower3List[it].fireTimeCount = tower3List[it].fireTime;
-                        }
-                        
+                        if(distance < towerLongList[it].Range/2)
+                            listEnemy1[ie].speed= listEnemy1[ie].maxSpeed * 0.5;
+                        else
+                            count++;
                     }
+                    if(count==towerLongList.length)
+                        listEnemy1[ie].speed=listEnemy1[ie].maxSpeed;
                 }
                
             }
@@ -873,7 +900,7 @@
                     return towerSlow;
             }
         
-            function CreateTower3Template(x,z){
+            function CreateTowerLongTemplate(x,z){
                     var faceColors = new Array(6);
                     faceColors[1] = new BABYLON.Color4(0,0,1,1);
                     faceColors[2] = new BABYLON.Color4(0,0,1,1);
@@ -882,36 +909,36 @@
                     faceColors[5] = new BABYLON.Color4(0,0,1,1);
                     faceColors[6] = new BABYLON.Color4(0,0,1,1);
         
-                    var tower = new BABYLON.MeshBuilder.CreateBox("tower3", {height : 3, width: 3, depth: 3,faceColors: faceColors}, scene);
+                    var towerLong = new BABYLON.MeshBuilder.CreateBox("towerLong", {height : 3, width: 3, depth: 3,faceColors: faceColors}, scene);
         
-                    tower.position.x = x;
-                    tower.position.y = 8;
-                    tower.position.z = z;
+                    towerLong.position.x = x;
+                    towerLong.position.y = 8;
+                    towerLong.position.z = z;
         
-                    tower3TemplateList.push(tower);
+                    towerLongTemplateList.push(towerLong);
         
-                    tower.actionManager = new BABYLON.ActionManager(scene);
-                    tower.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function () {
-                    CreateTower3(tower.position.x, tower.position.z);
+                    towerLong.actionManager = new BABYLON.ActionManager(scene);
+                    towerLong.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function () {
+                    CreateTowerLong(towerLong.position.x, towerLong.position.z);
         
                     for (var index = 0; index < platList.length; index++)
                     {
-                        if (platList[index].Mesh.position.x == tower.position.x && platList[index].Mesh.position.z == tower.position.z)
+                        if (platList[index].Mesh.position.x == towerLong.position.x && platList[index].Mesh.position.z == towerLong.position.z)
                         {
                             platList[index].isEmpty = false;
                             break;
                         }
                     }
         
-                    for (var index = 0; index < tower3TemplateList.length; index++)
+                    for (var index = 0; index < towerLongTemplateList.length; index++)
                     {
-                        tower3TemplateList[index].dispose();
+                        towerLongTemplateList[index].dispose();
                     }
-                    tower3TemplateList = [];
+                    towerLongTemplateList = [];
                 }));
         
         
-                    return tower;
+                    return towerLong;
             }
             // #endregion
             //////////////////Enemy1////////////////
@@ -1094,7 +1121,7 @@
                             break;
                         }
                     }
-                    for (var it = 0; it < tower3List.length; it++){
+                    for (var it = 0; it < towerLongList.length; it++){
                         if (towerSlowList[it] === TowerPicked) {
                             TowerPicked.Mesh.dispose();
                             towerSlowList.splice(it,1);
@@ -1135,7 +1162,7 @@
                 //     // }
                 // }
         
-                var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh){if (mesh.id == "towerShort" || mesh.id == "towerSlow" || mesh.id == "tower3") return mesh;});
+                var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh){if (mesh.id == "towerShort" || mesh.id == "towerSlow" || mesh.id == "towerLong") return mesh;});
                 if (pickInfo.hit) {
                     if (TowerPicked != null) {
                         if (pickInfo.pickedMesh != TowerPicked.Mesh)
@@ -1151,7 +1178,7 @@
         
         
             var onPointerDown = function (evt) {
-                var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh){if (mesh.id == "towerShort" || mesh.id == "towerSlow" || mesh.id == "tower3") return mesh;});
+                var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh){if (mesh.id == "towerShort" || mesh.id == "towerSlow" || mesh.id == "towerLong") return mesh;});
                 if (pickInfo.hit) {
                     hightLighter.addMesh(pickInfo.pickedMesh, BABYLON.Color3.Blue());
                 }
@@ -1164,7 +1191,7 @@
             }
             var CountToOffPickedMesh = 0;
             var onPointerUp = function () {
-                var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh){if (mesh.id == "towerShort" || mesh.id == "towerSlow" || mesh.id == "tower3") return mesh;});
+                var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh){if (mesh.id == "towerShort" || mesh.id == "towerSlow" || mesh.id == "towerLong") return mesh;});
                 if (pickInfo.hit) {
                     //hightLighter.addMesh(pickInfo.pickedMesh, BABYLON.Color3.Blue());
                     for (var it = 0; it < towerShortList.length; it++){
@@ -1180,9 +1207,9 @@
                             break;
                         }   
                     }
-                    for (var it = 0; it < tower3List.length; it++){
-                        if (tower3List[it].Mesh === pickInfo.pickedMesh){
-                            TowerPicked = tower3List[it];
+                    for (var it = 0; it < towerLongList.length; it++){
+                        if (towerLongList[it].Mesh === pickInfo.pickedMesh){
+                            TowerPicked = towerLongList[it];
                             break;
                         }
                     }
@@ -1374,7 +1401,7 @@
                     if (platList[index].isEmpty == true)//&&checkCanBuild(platList[index]))
                     {
                         //platList[index].Platform.dispose();
-                        CreateTower3Template(platList[index].Mesh.position.x, platList[index].Mesh.position.z);
+                        CreateTowerLongTemplate(platList[index].Mesh.position.x, platList[index].Mesh.position.z);
                     }
                         
                 }
@@ -1466,7 +1493,7 @@
                 UpdatetowerShort();
                 UpdateBullet();
                 UpdatetowerSlow();
-                UpdateTower3();
+                UpdatetowerLong();
                 Spawning();
                 UpdateWave();
                 updateEnergy();
