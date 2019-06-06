@@ -1018,16 +1018,43 @@
       "uri": "scene.bin"
     }
   ],
-  "images": [
+   "images": [
+    {
+      "uri": "textures/material_emissive.jpeg"
+    },
     {
       "uri": "textures/material_baseColor.jpeg"
+    },
+    {
+      "uri": "textures/material_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/material_normal.png"
+    },
+    {
+      "uri": "textures/middle_emissive.jpeg"
     },
     {
       "uri": "textures/middle_baseColor.jpeg"
     },
     {
+      "uri": "textures/middle_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/middle_normal.png"
+    },
+    {
+      "uri": "textures/material_1_emissive.jpeg"
+    },
+    {
       "uri": "textures/material_1_baseColor.jpeg"
     },
+    {
+      "uri": "textures/material_1_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/material_1_normal.png"
+    }
   ],
   "materials": [
     {
