@@ -287,10 +287,10 @@
                     camera.attachControl(canvas, true);
                 });
                 _model.Bullet = new BABYLON.Mesh.CreateBox("bulletModel",0.0001,scene);
-                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/battle_tower/", "scene.gltf", scene, function (newMeshes) {
+                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/cannon_bullet/", "scene.gltf", scene, function (newMeshes) {
                     _model.Bullet = newMeshes[0];
-                    _model.Bullet.scaling=new BABYLON.Vector3(0.01 , 0.01, 0.01);
-                    hightLighter.addMesh(_model.bullet, BABYLON.Color3.Red());
+                    _model.Bullet.scaling=new BABYLON.Vector3(0.03 , 0.03, 0.03);
+                    hightLighter.addMesh(_model.Bullet, BABYLON.Color3.Red());
                     _model.Bullet.position = new BABYLON.Vector3(0,1000,0);
                     console.log("Load model bullet complete!");
                 })
@@ -454,13 +454,9 @@
             function CreateBullet1(target, list, tower, speed)
             {
                 var b = new Bullet1();
-                b.mesh = new BABYLON.MeshBuilder.CreateSphere("bullet", {diameter: 2}, scene);
-                b.mesh.material=new BABYLON.StandardMaterial("bMat",scene);
-                b.mesh.material.diffuseColor=new BABYLON.Color3.Green();
-                b.mesh.position.x = tower.Mesh.position.x;
-                b.mesh.position.z = tower.Mesh.position.z;
-                b.mesh.position.y = tower.Mesh.position.y;
-                //b.mesh.wireframe =true;
+                b.mesh = _model.Bullet.clone(list.length -1);
+                
+                b.mesh.position = new BABYLON.Vector3(tower.Mesh.position.x,tower.Mesh.position.y,tower.Mesh.position.z);
                 
                 b.speed = speed;
                 b.damage = tower.damage;
