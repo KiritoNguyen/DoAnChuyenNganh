@@ -117,6 +117,31 @@
             var isCompleteLoadEnemy = 0;
             var isCompleteLoadPlatform = 0;
 
+            ////LOADING SCREEN/////////
+
+               var fullscreenGUI = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("FullscreenUI", true);
+            var URL = "https://raw.githubusercontent.com/KiritoNguyen/My_Image/master/MyImage/Phi/background.jpg";
+
+            var image = new BABYLON.GUI.Image("backImage", URL);
+            image.width = 1;
+            image.height = 1;
+            fullscreenGUI.addControl(image);
+
+            scene.registerBeforeRender(function(){ //Spin the square
+                var deltaTime = scene.getEngine().getDeltaTime();
+            });    
+
+                //Use when load background after 5s
+        //         setTimeout(function(){
+        //     fullscreenGUI.removeControl(loadingText); //Remove our loading screen
+        //     fullscreenGUI.removeControl(loadingBG);
+        //     fullscreenGUI.removeControl(image);
+        // }, 5000);
+            scene.executeWhenReady(function () { //When everything is done loading
+                fullscreenGUI.removeControl(image);
+            }); 
+            ///////////////////////////
+
             /////////////////////// SOUND ///////////////////////////
             var soundManager = function (scene) {
                 gunshot = new BABYLON.Sound("gunshot", "https://raw.githubusercontent.com/tranminhquan/Metroid_Game_2/master/Metroid/Resources/sound/sfx/bullet.wav", scene);
