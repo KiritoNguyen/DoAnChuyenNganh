@@ -100,6 +100,8 @@
         var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
         engine.loadingUIText = "LOADING ...";
 
+        var modelManager;
+
         var createScene = function () {
         
             //var engine = new BABYLON.Engine(canvas, true, { stencil: true });
@@ -284,13 +286,11 @@
                     hightLighter.addMesh(_model.ShortTower, BABYLON.Color3.Blue());
                     _model.ShortTower.position = new BABYLON.Vector3(0,1000,0);
                     console.log("Load model short tower complete!");
-                    notice.text="";
-                    camera.attachControl(canvas, true);
                 });
                 _model.LongTower = new BABYLON.Mesh.CreateBox("longTowerModel",0.0001,scene);
-                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/slow_tower/", "scene.gltf", scene, function (newMeshes) {
+                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/long_tower/", "scene.gltf", scene, function (newMeshes) {
                     _model.LongTower = newMeshes[0];
-                    _model.LongTower.scaling=new BABYLON.Vector3(0.01 , 0.01, 0.01);
+                    _model.LongTower.scaling=new BABYLON.Vector3(1 , 1, 1);
                     hightLighter.addMesh(_model.LongTower, BABYLON.Color3.Red());
                     _model.LongTower.position = new BABYLON.Vector3(0,1000,0);
                     console.log("Load model long tower complete!");
@@ -305,9 +305,6 @@
                     _model.Bullet.position = new BABYLON.Vector3(0,1000,0);
                     console.log("Load model bullet complete!");
                 })
-                
-                
-
             }
             LoadAllModel();
 
@@ -403,6 +400,9 @@
             var sun =new BABYLON.MeshBuilder.CreateSphere("sun",{diameter:20},scene);
             sun.position=new BABYLON.Vector3(0,100,50000);
             light.parent=sun;
+
+            var light2 = new BABYLON.PointLight("lights",new BABYLON.Vector3.Zero(),scene);
+            light2.intensity = 0.8;
         
             var count = 0;
             //////////////////////////Manager & Definition//////////////////////////////
@@ -429,7 +429,7 @@
         
             var debugRange = true;
             var rangeMat = new BABYLON.StandardMaterial("greenMat", scene);
-        	rangeMat.alpha = 0.2;
+        	rangeMat.alpha = 0.05;
         
             //Debug
             var text1 = new BABYLON.GUI.TextBlock();
@@ -505,9 +505,12 @@
                 bullet1.mesh.position.x = x;
                 bullet1.mesh.position.z = z;
         
-                if (Math.abs(bullet1.mesh.position.x - bullet1.target.mesh.position.x)<0.5 && Math.abs(bullet1.mesh.position.z - bullet1.target.mesh.position.z)<0.5)
+                if (Math.abs(distance)<0.5)
                 {
+                    console.log('befor' +bullet1.mesh);
+                    bullet1.mesh.isPickable = false;
                     bullet1.mesh.dispose();
+                    console.log(bullet1.mesh);
                     bullet1.target.hp -= 1;
                     gunshot.play();
                 }
@@ -517,12 +520,14 @@
             {
                 towerShortList.forEach(function(tower){
                     tower.listBullet1.forEach(function(bullet){
-                        Bullet1Attack(bullet);
+                        if(bullet.mesh.isPickable)
+                            Bullet1Attack(bullet);
                     })
                 })
                 towerLongList.forEach(function(tower){
-                    tower.listBullet.forEach(function(bullet){
-                        Bullet1Attack(bullet);
+                    tower.listBullet1.forEach(function(bullet){
+                        if(bullet.mesh.isPickable)
+                            Bullet1Attack(bullet);
                     })
                 })
             }
@@ -637,7 +642,7 @@
                 }
                 var towerShort = new towerShort();
                 towerShort.Mesh = _model.ShortTower.clone(towerShortList.length -1);
-                towerShort.Mesh.position = new BABYLON.Vector3(x,-3,z);
+                towerShort.Mesh.position = new BABYLON.Vector3(x,1,z);
                 
                 towerShort.fireTime = 1;
                 towerShort.fireTimeCount = towerShort.fireTime;
@@ -695,19 +700,8 @@
                 return towerSlow;
             }
         
-            /////////////////////Tower3////////////////////
-            function towerLong()
-            {
-                var Range;
-                var Damage;
-                var Mesh;
-                var rangeMesh;
-                var listBullet;
-                var fireTime;
-                var fireTimeCount;
-            }
-        
-            function CreatetowerLong(x,z)
+            /////////////////////Tower3////////////////////        
+            function CreateTowerLong(x,z)
             {
                 function towerLong()
                 {
@@ -715,26 +709,29 @@
                     var Damage;
                     var Mesh;
                     var rangeMesh;
+                    var listBullet1;
+                    var fireTime;
+                    var fireTimeCount;
                 }
                 var towerLong = new towerLong();
                 towerLong.Mesh = _model.LongTower.clone(towerLongList.length - 1);
                 towerLong.Mesh.position = new BABYLON.Vector3(x, -3, z);
 
                 towerLong.fireTime = 2;
-                    // tower.fireTimeCount = tower.fireTime;
-                    towerLong.Range = 47;
-                    towerLong.Damage = 10;
-                    
-                    towerLong.listBullet = [];
-        
-                    towerLong.rangeMesh = new BABYLON.MeshBuilder.CreateSphere("range", {diameterX:tower.Range, diameterZ: tower.Range, diameterY: 0.1}, scene);
-                    towerLong.rangeMesh.position.x = x;
-                    towerLong.rangeMesh.position.z = z;
-                    towerLong.rangeMesh.position.y = towerLong.Mesh.position.y;
-                    towerLong.rangeMesh.material = rangeMat;
-        
-                    //if (debugRange == false)
-                    //    towerShort.rangeMesh.isVisible = false;
+                towerLong.fireTimeCount = towerLong.fireTime;
+                towerLong.Range = 47;
+                towerLong.Damage = 10;
+                
+                towerLong.listBullet1 = [];
+    
+                towerLong.rangeMesh = new BABYLON.MeshBuilder.CreateSphere("range", {diameterX:towerLong.Range, diameterZ: towerLong.Range, diameterY: 0.1}, scene);
+                towerLong.rangeMesh.position.x = x;
+                towerLong.rangeMesh.position.z = z;
+                towerLong.rangeMesh.position.y = towerLong.Mesh.position.y;
+                towerLong.rangeMesh.material = rangeMat;
+    
+                //if (debugRange == false)
+                //    towerShort.rangeMesh.isVisible = false;
                     towerLongList.push(towerLong);
                 
                 return towerLong;
@@ -783,34 +780,23 @@
             }
         
             function UpdatetowerLong(){
-                // for (var it = 0; it < tower3List.length; it++){
-                //     tower3List[it].fireTimeCount -= 0.0167;
-                //     for (var ie = 0; ie < listEnemy1.length; ie++)  {
-                //         var distanceX = Math.abs(listEnemy1[ie].mesh.position.x - tower3List[it].Mesh.position.x);
-                        
-                //         var distanceZ = Math.abs(listEnemy1[ie].mesh.position.z - tower3List[it].Mesh.position.z);
-                //         var distance = Math.sqrt(distanceX * distanceX + distanceZ * distanceZ);
-                        
-                //         if (distance < tower3List[it].Range/2 && tower3List[it].fireTimeCount < 0){
-                //                 CreateBullet1(listEnemy1[ie], tower3List[it].listBullet,tower3List[it],150);
-                //                 tower3List[it].fireTimeCount = tower3List[it].fireTime;
-                //         }
-                        
-                //     }
-                // }
-                for (var ie = 0; ie < listEnemy1.length; ie++){
-                    var count=0;
-                    for (var it = 0; it < towerLongList.length; it++) {
-                        var distanceX = Math.abs(listEnemy1[ie].mesh.position.x - towerLongList[it].Mesh.position.x);
-                        var distanceZ = Math.abs(listEnemy1[ie].mesh.position.z - towerLongList[it].Mesh.position.z);
+                for (var it = 0; it < towerLongList.length; it++){
+                    towerLongList[it].fireTimeCount -= 0.0167;
+                    for (var ie = 0; ie < listEnemy1.length; ie++)  {
+                        var diffX = listEnemy1[ie].mesh.position.x - towerLongList[it].Mesh.position.x;
+                        var diffZ = listEnemy1[ie].mesh.position.z - towerLongList[it].Mesh.position.z;
+
+                        var distanceX = Math.abs(diffX);
+                        var distanceZ = Math.abs(diffZ);
                         var distance = Math.sqrt(distanceX * distanceX + distanceZ * distanceZ);
-                        if(distance < towerLongList[it].Range/2)
-                            listEnemy1[ie].speed= listEnemy1[ie].maxSpeed * 0.5;
-                        else
-                            count++;
+                        
+                        if (distance < towerLongList[it].Range/2 && towerLongList[it].fireTimeCount < 0){
+                                CreateBullet1(listEnemy1[ie], towerLongList[it].listBullet1,towerLongList[it],30);
+                                towerLongList[it].Mesh.rotation = new BABYLON.Vector3(0,Math.atan2(diffX,diffZ),0);
+                                towerLongList[it].fireTimeCount = towerLongList[it].fireTime;
+                        }
+                        
                     }
-                    if(count==towerLongList.length)
-                        listEnemy1[ie].speed=listEnemy1[ie].maxSpeed;
                 }
                
             }
@@ -820,12 +806,12 @@
             function CreatetowerShortTemplate(x,z)
             {
                 var faceColors = new Array(6);
-                faceColors[1] = new BABYLON.Color4(0,1,0,1);
-                faceColors[2] = new BABYLON.Color4(0,1,0,1);
-                faceColors[3] = new BABYLON.Color4(0,1,0,1);
-                faceColors[4] = new BABYLON.Color4(0,1,0,1);
-                faceColors[5] = new BABYLON.Color4(0,1,0,1);
-                faceColors[6] = new BABYLON.Color4(0,1,0,1);
+                faceColors[1] = new BABYLON.Color4(0,0,1,1);
+                faceColors[2] = new BABYLON.Color4(0,0,1,1);
+                faceColors[3] = new BABYLON.Color4(0,0,1,1);
+                faceColors[4] = new BABYLON.Color4(0,0,1,1);
+                faceColors[5] = new BABYLON.Color4(0,0,1,1);
+                faceColors[6] = new BABYLON.Color4(0,0,1,1);
         
                 var towerShort = new BABYLON.MeshBuilder.CreateBox("towerShort", {height : 3, width: 3, depth: 3,faceColors: faceColors}, scene);
         
@@ -861,12 +847,12 @@
         
             function CreatetowerSlowTemplate(x,z){
                     var faceColors = new Array(6);
-                    faceColors[1] = new BABYLON.Color4(1,1,0,0);
-                    faceColors[2] = new BABYLON.Color4(1,1,0,0);
-                    faceColors[3] = new BABYLON.Color4(1,1,0,0);
-                    faceColors[4] = new BABYLON.Color4(1,1,0,0);
-                    faceColors[5] = new BABYLON.Color4(1,1,0,0);
-                    faceColors[6] = new BABYLON.Color4(1,1,0,0);
+                    faceColors[1] = new BABYLON.Color4(0,1,0,1);
+                    faceColors[2] = new BABYLON.Color4(0,1,0,1);
+                    faceColors[3] = new BABYLON.Color4(0,1,0,1);
+                    faceColors[4] = new BABYLON.Color4(0,1,0,1);
+                    faceColors[5] = new BABYLON.Color4(0,1,0,1);
+                    faceColors[6] = new BABYLON.Color4(0,1,0,1);
         
                     var towerSlow = new BABYLON.MeshBuilder.CreateBox("towerSlow", {height : 3, width: 3, depth: 3,faceColors: faceColors}, scene);
         
@@ -902,12 +888,12 @@
         
             function CreateTowerLongTemplate(x,z){
                     var faceColors = new Array(6);
-                    faceColors[1] = new BABYLON.Color4(0,0,1,1);
-                    faceColors[2] = new BABYLON.Color4(0,0,1,1);
-                    faceColors[3] = new BABYLON.Color4(0,0,1,1);
-                    faceColors[4] = new BABYLON.Color4(0,0,1,1);
-                    faceColors[5] = new BABYLON.Color4(0,0,1,1);
-                    faceColors[6] = new BABYLON.Color4(0,0,1,1);
+                    faceColors[1] = new BABYLON.Color4(1,0,0,1);
+                    faceColors[2] = new BABYLON.Color4(1,0,0,1);
+                    faceColors[3] = new BABYLON.Color4(1,0,0,1);
+                    faceColors[4] = new BABYLON.Color4(1,0,0,1);
+                    faceColors[5] = new BABYLON.Color4(1,0,0,1);
+                    faceColors[6] = new BABYLON.Color4(1,0,0,1);
         
                     var towerLong = new BABYLON.MeshBuilder.CreateBox("towerLong", {height : 3, width: 3, depth: 3,faceColors: faceColors}, scene);
         
@@ -957,7 +943,7 @@
                 e.mesh = _model.Enemy.clone(listEnemy1.length -1);
                 e.mesh.position = new BABYLON.Vector3(x,5,z);
 
-                e.hp = 100;
+                e.hp = 5;
                 e.maxSpeed = 10;
                 e.speed = e.maxSpeed;
                 e.target = listNodes[0];
@@ -1380,27 +1366,66 @@
             //LoadPlatformModel();
 
             document.getElementById("twShortRanger").onclick = function(){
-                for (var index = 0; index < platList.length; index++)
+                for (var index = 0; index < towerLongTemplateList.length; index++)
                 {
-                    if (platList[index].isEmpty == true)//&&checkCanBuild(platList[index]))
-                        CreatetowerShortTemplate(platList[index].Mesh.position.x, platList[index].Mesh.position.z);
+                    towerLongTemplateList[index].dispose();
                 }
-            }
+                towerLongTemplateList = [];
 
-            document.getElementById("twSlow").onclick = function(){ 
-                for (var index = 0; index < platList.length; index++)
+                for (var index = 0; index < towerSlowTemplateList.length; index++)
                 {
-                    if (platList[index].isEmpty == true)//&&checkCanBuild(platList[index]))
-                        CreatetowerSlowTemplate(platList[index].Mesh.position.x, platList[index].Mesh.position.z);
+                    towerSlowTemplateList[index].dispose();
                 }
-            }  
+                towerSlowTemplateList = [];
 
-            document.getElementById("twLongRanger").onclick = function(){
                 for (var index = 0; index < platList.length; index++)
                 {
                     if (platList[index].isEmpty == true)//&&checkCanBuild(platList[index]))
                     {
-                        //platList[index].Platform.dispose();
+                        CreatetowerShortTemplate(platList[index].Mesh.position.x, platList[index].Mesh.position.z);
+                    }
+                }
+            }
+
+            document.getElementById("twSlow").onclick = function(){ 
+                for (var index = 0; index < towerLongTemplateList.length; index++)
+                {
+                    towerLongTemplateList[index].dispose();
+                }
+                towerLongTemplateList = [];
+
+                for (var index = 0; index < towerShortTemplateList.length; index++)
+                {
+                    towerShortTemplateList[index].dispose();
+                }
+                towerShortTemplateList = [];
+
+                for (var index = 0; index < platList.length; index++)
+                {
+                    if (platList[index].isEmpty == true)//&&checkCanBuild(platList[index]))
+                    {
+                        CreatetowerSlowTemplate(platList[index].Mesh.position.x, platList[index].Mesh.position.z);
+                    }
+                }
+            }  
+
+            document.getElementById("twLongRanger").onclick = function(){
+                for (var index = 0; index < towerSlowTemplateList.length; index++)
+                {
+                    towerSlowTemplateList[index].dispose();
+                }
+                towerSlowTemplateList = [];
+
+                for (var index = 0; index < towerShortTemplateList.length; index++)
+                {
+                    towerShortTemplateList[index].dispose();
+                }
+                towerShortTemplateList = [];
+
+                for (var index = 0; index < platList.length; index++)
+                {
+                    if (platList[index].isEmpty == true)//&&checkCanBuild(platList[index]))
+                    {
                         CreateTowerLongTemplate(platList[index].Mesh.position.x, platList[index].Mesh.position.z);
                     }
                         
