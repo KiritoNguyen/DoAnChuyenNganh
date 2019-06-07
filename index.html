@@ -819,6 +819,12 @@
             //Chinh Tranparent lai cho mo mo
             function CreatetowerShortTemplate(x,z)
             {
+                camera.setTarget(new BABYLON.Vector3(0,12, -15));
+                //Disable key
+                camera.keysUp = [];
+                camera.keysDown = [];
+                camera.keysLeft = [];
+                camera.keysRight = [];
                 var faceColors = new Array(6);
                 faceColors[1] = new BABYLON.Color4(0,1,0,1);
                 faceColors[2] = new BABYLON.Color4(0,1,0,1);
@@ -860,6 +866,12 @@
             }
         
             function CreatetowerSlowTemplate(x,z){
+                    camera.setTarget(new BABYLON.Vector3(0,12, -15));
+                    //Disable key
+                    camera.keysUp = [];
+                    camera.keysDown = [];
+                    camera.keysLeft = [];
+                    camera.keysRight = [];
                     var faceColors = new Array(6);
                     faceColors[1] = new BABYLON.Color4(1,1,0,0);
                     faceColors[2] = new BABYLON.Color4(1,1,0,0);
@@ -901,6 +913,12 @@
             }
         
             function CreateTowerLongTemplate(x,z){
+                    camera.setTarget(new BABYLON.Vector3(0,12, -15));
+                    //Disable key
+                    camera.keysUp = [];
+                    camera.keysDown = [];
+                    camera.keysLeft = [];
+                    camera.keysRight = [];
                     var faceColors = new Array(6);
                     faceColors[1] = new BABYLON.Color4(0,0,1,1);
                     faceColors[2] = new BABYLON.Color4(0,0,1,1);
@@ -1293,7 +1311,8 @@
             }
             
             function StartWave() {
-                
+                camera.setTarget(new BABYLON.Vector3(-4,-100, -10));
+
                 notice.text = "ENEMIES COMING";
                 setTimeout(function(){
                     notice.text="";
