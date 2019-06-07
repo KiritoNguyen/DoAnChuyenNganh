@@ -280,7 +280,7 @@
                     console.log("Load model slow tower complete!");
                 });
                 _model.ShortTower = new BABYLON.Mesh.CreateBox("shortTowerModel",0.0001,scene);
-                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/model/battle_tower/", "scene.gltf", scene, function (newMeshes) {
+                BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/e801d46ddcc2256b9a941d2a65cad00bd44bdcb2/model/battle_tower/", "scene.gltf", scene, function (newMeshes) {
                     _model.ShortTower = newMeshes[0];
                     _model.ShortTower.scaling=new BABYLON.Vector3(0.01 , 0.01, 0.01);
                     hightLighter.addMesh(_model.ShortTower, BABYLON.Color3.Blue());
@@ -805,6 +805,12 @@
             //Chinh Tranparent lai cho mo mo
             function CreatetowerShortTemplate(x,z)
             {
+                camera.setTarget(new BABYLON.Vector3(0,12, -15));
+                //Disable key
+                camera.keysUp = [];
+                camera.keysDown = [];
+                camera.keysLeft = [];
+                camera.keysRight = [];
                 var faceColors = new Array(6);
                 faceColors[1] = new BABYLON.Color4(0,0,1,1);
                 faceColors[2] = new BABYLON.Color4(0,0,1,1);
@@ -846,6 +852,12 @@
             }
         
             function CreatetowerSlowTemplate(x,z){
+                    camera.setTarget(new BABYLON.Vector3(0,12, -15));
+                    //Disable key
+                    camera.keysUp = [];
+                    camera.keysDown = [];
+                    camera.keysLeft = [];
+                    camera.keysRight = [];
                     var faceColors = new Array(6);
                     faceColors[1] = new BABYLON.Color4(0,1,0,1);
                     faceColors[2] = new BABYLON.Color4(0,1,0,1);
@@ -887,6 +899,12 @@
             }
         
             function CreateTowerLongTemplate(x,z){
+                    camera.setTarget(new BABYLON.Vector3(0,12, -15));
+                    //Disable key
+                    camera.keysUp = [];
+                    camera.keysDown = [];
+                    camera.keysLeft = [];
+                    camera.keysRight = [];
                     var faceColors = new Array(6);
                     faceColors[1] = new BABYLON.Color4(1,0,0,1);
                     faceColors[2] = new BABYLON.Color4(1,0,0,1);
@@ -1279,7 +1297,8 @@
             }
             
             function StartWave() {
-                
+                camera.setTarget(new BABYLON.Vector3(-4,-100, -10));
+
                 notice.text = "ENEMIES COMING";
                 setTimeout(function(){
                     notice.text="";
