@@ -68,29 +68,29 @@
         </style>
     </head>
     <body>
-            <div class="menu">
-                <ul style="list-style-type:none; margin: 0; padding: 0; font-size: 22px; font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">
-                    <li>Start Wave</li>
-                    <div>
-                        <button id="btnStartWave" class="btn">Start</button>
-                    </div>               
-                    <br/>
-                    <li>Restart Wave</li>
-                    <div>
-                        <button id="btnRestartWave" class="btn">Retart</button>
+        <div class="menu" id="menu-div">
+            <ul style="list-style-type:none; margin: 0; padding: 0; font-size: 22px; font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">
+                <li>Start Wave</li>
+                <div>
+                    <button id="btnStartWave" class="btn">Start</button>
+                </div>               
+                <br/>
+                <li>Restart Wave</li>
+                <div>
+                    <button id="btnRestartWave" class="btn">Retart</button>
+                </div>         
+                <br/>        
+                <li>Create Tower</li>
+                    <div class="list">
+                        <button id="twShortRanger" class="btn" style="margin-top: 18%">Short Ranger</button> <br>
+                        <button id="twSlow" class="btn" style="margin-top: 10%">Slow</button> <br>
+                        <button id="twLongRanger" class="btn" style="margin-top: 10%">Long Ranger</button> <br>
                     </div>         
-                    <br/>        
-                    <li>Create Tower</li>
-                        <div class="list">
-                            <button id="twShortRanger" class="btn" style="margin-top: 18%">Short Ranger</button> <br>
-                            <button id="twSlow" class="btn" style="margin-top: 10%">Slow</button> <br>
-                            <button id="twLongRanger" class="btn" style="margin-top: 10%">Long Ranger</button> <br>
-                        </div>         
-                    <div>
-                        <img src="https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/Image/logo.png" width="100%" height="100%"/>
-                    </div>                           
-                </ul>
-            </div>
+                <div>
+                    <img src="https://raw.githubusercontent.com/KiritoNguyen/DoAnChuyenNganh/master/Image/logo.png" width="100%" height="100%"/>
+                </div>                           
+            </ul>
+        </div>
         <div class="main">
                 <canvas id="renderCanvas"></canvas>
         </div>
@@ -118,8 +118,9 @@
             var isCompleteLoadPlatform = 0;
 
             ////LOADING SCREEN/////////
-
-               var fullscreenGUI = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("FullscreenUI", true);
+            document.getElementById("menu-div").style.display = "none";
+            document.getElementsByClassName("main")[0].style.width = "100%";
+            var fullscreenGUI = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("FullscreenUI", true);
             var URL = "https://raw.githubusercontent.com/KiritoNguyen/My_Image/master/MyImage/Phi/background.jpg";
 
             var image = new BABYLON.GUI.Image("backImage", URL);
@@ -139,6 +140,8 @@
         // }, 5000);
             scene.executeWhenReady(function () { //When everything is done loading
                 fullscreenGUI.removeControl(image);
+                document.getElementsByClassName("main")[0].style.width = "89%";
+                document.getElementById("menu-div").style.display = "";
             }); 
             ///////////////////////////
 
@@ -450,6 +453,7 @@
             var SpawnPointY = 15;
             var waveController;
             var isStartWave=false;
+            var isDestroyMode = false;
             
         
             var debugRange = true;
@@ -706,7 +710,7 @@
                     var rangeMesh;
                 }
                 var towerSlow = new towerSlow();
-                towerSlow.Mesh = _model.SlowTower.clone(towerSlowList.length - 1);
+                towerSlow.Mesh = _model.SlowTower.clone("TowerSlow");
                 towerSlow.Mesh.position = new BABYLON.Vector3(x, -3, z);
     
                 towerSlow.fireTime = 0.0167;
@@ -1130,32 +1134,47 @@
             buttonDestroy.fontSize = 20;
             buttonDestroy.thickness = 0;
             buttonDestroy.background = "black";
-            advancedTexture.addControl(buttonDestroy);
+            //advancedTexture.addControl(buttonDestroy);
         
             buttonDestroy.onPointerClickObservable.add(function(){
-                if (TowerPicked != null) {
-                    text2.text = "ya";
-                    for (var it = 0; it < towerShortList.length; it++){
-                        if (towerShortList[it] === TowerPicked) {
-                            TowerPicked.Mesh.dispose();
-                            TowerPicked.rangeMesh.dispose();
-                            towerShortList.splice(it,1);
-                            break;
+                if(isDestroyMode)
+                    isDestroyMode = false;
+                else
+                    isDestroyMode =true;
+                if(isDestroyMode){
+                    notice.text = "Destroy Mode";
+                    scene.onPointerDown = function (evt, pickResult) {
+                        if (pickResult.hit) {
+                            TowerPicked = pickResult.pickedMesh;
+                            console.log(TowerPicked);
+                            for (var it = 0; it < towerShortList.length; it++){
+                                if (towerShortList[it] === TowerPicked) {
+                                    TowerPicked.Mesh.dispose();
+                                    TowerPicked.rangeMesh.dispose();
+                                    towerShortList.splice(it,1);
+                                    break;
+                                }
+                            }
+                            for (var it = 0; it < towerSlowList.length; it++){
+                                if (towerSlowList[it].Mesh.position == TowerPicked.position) {
+                                    towerSlowList[it].Mesh.dispose();
+                                    towerSlowList.splice(it,1);
+                                    break;
+                                }
+                            }
+                            for (var it = 0; it < towerLongList.length; it++){
+                                if (towerSlowList[it] === TowerPicked) {
+                                    TowerPicked.Mesh.dispose();
+                                    towerSlowList.splice(it,1);
+                                    break;
+                                }
+                            }
                         }
-                    }
-                    for (var it = 0; it < towerSlowList.length; it++){
-                        if (towerSlowList[it] === TowerPicked) {
-                            TowerPicked.Mesh.dispose();
-                            towerSlowList.splice(it,1);
-                            break;
-                        }
-                    }
-                    for (var it = 0; it < towerLongList.length; it++){
-                        if (towerSlowList[it] === TowerPicked) {
-                            TowerPicked.Mesh.dispose();
-                            towerSlowList.splice(it,1);
-                            break;
-                        }
+                    };
+                }
+                else{
+                    notice.text = "";
+                    scene.onPointerDown = function (evt, pickResult) {
                     }
                 }
         
@@ -1592,6 +1611,5 @@
             engine.resize();
         });
     </script>
-    <button class="babylonMuteIcon" id="babylonMuteIconBtn" title="Mute" style="top: 2px; left: 60px;"></button>
 </body>
 </html>
