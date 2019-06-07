@@ -1059,27 +1059,8 @@
   "materials": [
     {
       "doubleSided": true,
-      "emissiveFactor": [
-        1,
-        1,
-        1
-      ],
-      "emissiveTexture": {
-        "index": 8,
-        "texCoord": 0
-      },
       "name": "material_1",
-      "normalTexture": {
-        "index": 11,
-        "scale": 1,
-        "texCoord": 0
-      },
-      "occlusionTexture": {
-        "index": 10,
-        "strength": 1,
-        "texCoord": 0
-      },
-      "pbrMetallicRoughness": {
+       "pbrMetallicRoughness": {
         "baseColorFactor": [
           1,
           1,
@@ -1087,39 +1068,14 @@
           1
         ],
         "baseColorTexture": {
-          "index": 9,
-          "texCoord": 0
-        },
-        "metallicFactor": 1,
-        "metallicRoughnessTexture": {
-          "index": 10,
-          "texCoord": 0
-        },
-        "roughnessFactor": 1
+            "index": 9,
+            "texCoord": 0
+        }
       }
     },
     {
       "doubleSided": true,
-      "emissiveFactor": [
-        1,
-        1,
-        1
-      ],
-      "emissiveTexture": {
-        "index": 4,
-        "texCoord": 0
-      },
       "name": "middle",
-      "normalTexture": {
-        "index": 7,
-        "scale": 1,
-        "texCoord": 0
-      },
-      "occlusionTexture": {
-        "index": 6,
-        "strength": 1,
-        "texCoord": 0
-      },
       "pbrMetallicRoughness": {
         "baseColorFactor": [
           1,
@@ -1128,40 +1084,15 @@
           1
         ],
         "baseColorTexture": {
-          "index": 5,
-          "texCoord": 0
-        },
-        "metallicFactor": 1,
-        "metallicRoughnessTexture": {
-          "index": 6,
-          "texCoord": 0
-        },
-        "roughnessFactor": 1
+            "index": 5,
+            "texCoord": 0
+        }
       }
     },
     {
       "doubleSided": true,
-      "emissiveFactor": [
-        1,
-        1,
-        1
-      ],
-      "emissiveTexture": {
-        "index": 0,
-        "texCoord": 0
-      },
       "name": "material",
-      "normalTexture": {
-        "index": 3,
-        "scale": 1,
-        "texCoord": 0
-      },
-      "occlusionTexture": {
-        "index": 2,
-        "strength": 1,
-        "texCoord": 0
-      },
-      "pbrMetallicRoughness": {
+       "pbrMetallicRoughness": {
         "baseColorFactor": [
           1,
           1,
@@ -1169,16 +1100,10 @@
           1
         ],
         "baseColorTexture": {
-          "index": 1,
-          "texCoord": 0
-        },
-        "metallicFactor": 1,
-        "metallicRoughnessTexture": {
-          "index": 2,
-          "texCoord": 0
-        },
-        "roughnessFactor": 1
-      }
+            "index": 1,
+            "texCoord": 0
+        }
+       }
     }
   ],
   "meshes": [
