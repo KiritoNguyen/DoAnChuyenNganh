@@ -322,10 +322,10 @@
         
         //camera.inputs.clear();
             
-            var cameraSpeed = 2;
-            var zoomPos = scene.activeCamera.getDirection(BABYLON.Axis.Z);
-            zoomPos.y *=32;
-            scene.activeCamera.position.subtractInPlace(zoomPos);
+            var cameraSpeed = 0.5;
+            // var zoomPos = scene.activeCamera.getDirection(BABYLON.Axis.Z);
+            // zoomPos.y *=32;
+            // scene.activeCamera.position.subtractInPlace(zoomPos);
         
             // scene.debugLayer.show();
         
@@ -807,10 +807,10 @@
             {
                 camera.setTarget(new BABYLON.Vector3(0,12, -15));
                 //Disable key
-                camera.keysUp = [];
-                camera.keysDown = [];
-                camera.keysLeft = [];
-                camera.keysRight = [];
+                // camera.keysUp = [];
+                // camera.keysDown = [];
+                // camera.keysLeft = [];
+                // camera.keysRight = [];
                 var faceColors = new Array(6);
                 faceColors[1] = new BABYLON.Color4(0,0,1,1);
                 faceColors[2] = new BABYLON.Color4(0,0,1,1);
@@ -854,10 +854,10 @@
             function CreatetowerSlowTemplate(x,z){
                     camera.setTarget(new BABYLON.Vector3(0,12, -15));
                     //Disable key
-                    camera.keysUp = [];
-                    camera.keysDown = [];
-                    camera.keysLeft = [];
-                    camera.keysRight = [];
+                    // camera.keysUp = [];
+                    // camera.keysDown = [];
+                    // camera.keysLeft = [];
+                    // camera.keysRight = [];
                     var faceColors = new Array(6);
                     faceColors[1] = new BABYLON.Color4(0,1,0,1);
                     faceColors[2] = new BABYLON.Color4(0,1,0,1);
@@ -901,10 +901,10 @@
             function CreateTowerLongTemplate(x,z){
                     camera.setTarget(new BABYLON.Vector3(0,12, -15));
                     //Disable key
-                    camera.keysUp = [];
-                    camera.keysDown = [];
-                    camera.keysLeft = [];
-                    camera.keysRight = [];
+                    // camera.keysUp = [];
+                    // camera.keysDown = [];
+                    // camera.keysLeft = [];
+                    // camera.keysRight = [];
                     var faceColors = new Array(6);
                     faceColors[1] = new BABYLON.Color4(1,0,0,1);
                     faceColors[2] = new BABYLON.Color4(1,0,0,1);
@@ -1105,7 +1105,7 @@
             buttonDestroy.fontSize = 20;
             buttonDestroy.thickness = 0;
             buttonDestroy.background = "black";
-            //advancedTexture.addControl(buttonDestroy);
+            advancedTexture.addControl(buttonDestroy);
         
             buttonDestroy.onPointerClickObservable.add(function(){
                 if (TowerPicked != null) {
